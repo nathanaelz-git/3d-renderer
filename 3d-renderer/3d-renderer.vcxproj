@@ -29,6 +29,7 @@
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\DisplayManager.cpp" />
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\ImportHandler.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\Model.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\DisplayManager.h" />
     <ClInclude Include="src\ElementBuffer.h" />
+    <ClInclude Include="src\ImportHandler.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Shader.h" />
