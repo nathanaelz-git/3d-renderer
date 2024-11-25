@@ -8,8 +8,10 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "ImportHandler.h"
 
 #include <iostream>
+
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
@@ -20,6 +22,7 @@ float lastFrame = 0.0f; // Time of last frame
 float settingTime = 0.0f;
 
 
+
 // light position
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 
@@ -27,10 +30,14 @@ int main(void)
 {
   DisplayManager::createDisplay();
 
-  Model backpack("./models/backpack/backpack.obj");
+
+  //setting model to backpack by default
+  Model currentModel("./models/backpack/backpack.obj");
 
   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
   ourShader.use();
+
+  ImportHandler iHandler;
 
   bool drawTriangle = true;
 
@@ -38,6 +45,8 @@ int main(void)
   ourShader.setFloat("size", size);
 
   glEnable(GL_DEPTH_TEST);  
+
+  //main while loop
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
   {
     ImGui_ImplOpenGL3_NewFrame();
@@ -78,12 +87,23 @@ int main(void)
     ourShader.setFloat("pointLight.linear", 0.09f);
     ourShader.setFloat("pointLight.quadratic", 0.032f);
 
-    if (drawTriangle) backpack.Draw(ourShader);
+    if (drawTriangle) currentModel.Draw(ourShader);
 
-    ImGui::Begin("ImGUI window");
+    ImGui::Begin("Settings");
     // ImGui::Text("Some text here...");
     ImGui::Checkbox("Draw", &drawTriangle);
     ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+
+    if (ImGui::Button("Import Object"))
+    {
+       std::string newObjPath = iHandler.GetObjectFile();
+
+       if (!newObjPath.empty()) {
+          currentModel = Model(newObjPath);
+       }
+
+    };
+    
     ImGui::End();
 
     ourShader.setFloat("size", size);
