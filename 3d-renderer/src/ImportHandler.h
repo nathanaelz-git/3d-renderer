@@ -11,7 +11,7 @@ class ImportHandler
 {
 public:
    ImportHandler();
-   void GetObjectFile();
+   std::string GetObjectFile();
    
 };
 

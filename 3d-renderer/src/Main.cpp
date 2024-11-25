@@ -32,7 +32,7 @@ int main(void)
 
 
   //setting model to backpack by default
-  Model backpack("./models/backpack/backpack.obj");
+  Model currentModel("./models/backpack/backpack.obj");
 
   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
   ourShader.use();
@@ -87,16 +87,20 @@ int main(void)
     ourShader.setFloat("pointLight.linear", 0.09f);
     ourShader.setFloat("pointLight.quadratic", 0.032f);
 
-    if (drawTriangle) backpack.Draw(ourShader);
+    if (drawTriangle) currentModel.Draw(ourShader);
 
     ImGui::Begin("Settings");
     // ImGui::Text("Some text here...");
     ImGui::Checkbox("Draw", &drawTriangle);
     ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
 
-    if (ImGui::Button("Import"))
+    if (ImGui::Button("Import Object"))
     {
-       iHandler.GetObjectFile();
+       std::string newObjPath = iHandler.GetObjectFile();
+
+       if (!newObjPath.empty()) {
+          currentModel = Model(newObjPath);
+       }
 
     };
     

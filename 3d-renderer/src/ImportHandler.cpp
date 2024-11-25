@@ -1,7 +1,7 @@
 #include "ImportHandler.h"
 #include <nfd/include/nfd.h>
 
-void ImportHandler::GetObjectFile() {
+std::string ImportHandler::GetObjectFile() {
    std::cout << "Getting the Object File" << std::endl;
 
    nfdchar_t* outPath = NULL;
@@ -12,6 +12,7 @@ void ImportHandler::GetObjectFile() {
    if (result == NFD_OKAY) {
       puts("Success!");
       puts(outPath);
+      return outPath;
       free(outPath);
    }
    else if (result == NFD_CANCEL) {
@@ -21,7 +22,7 @@ void ImportHandler::GetObjectFile() {
       printf("Error: %s\n", NFD_GetError());
    }
 
-   return;
+   return NULL;
 }
 
 ImportHandler::ImportHandler() {
