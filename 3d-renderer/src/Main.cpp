@@ -30,7 +30,7 @@ int main(void)
 {
    DisplayManager::createDisplay();
 
-   Model backpack("./models/backpack/backpack.obj");
+   Model currentModel("./models/backpack/backpack.obj");
 
    Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
    ourShader.use();
