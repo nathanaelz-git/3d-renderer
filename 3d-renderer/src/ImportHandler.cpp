@@ -5,9 +5,11 @@ void ImportHandler::GetObjectFile() {
    std::cout << "Getting the Object File" << std::endl;
 
    nfdchar_t* outPath = NULL;
-   nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+   
+   nfdresult_t result = NFD_OpenDialog("obj", NULL, &outPath);
+   
 
-   /*if (result == NFD_OKAY) {
+   if (result == NFD_OKAY) {
       puts("Success!");
       puts(outPath);
       free(outPath);
@@ -17,7 +19,7 @@ void ImportHandler::GetObjectFile() {
    }
    else {
       printf("Error: %s\n", NFD_GetError());
-   }*/
+   }
 
    return;
 }
