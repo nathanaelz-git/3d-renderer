@@ -103,10 +103,15 @@ int main(void)
     }
     if (ImGui::CollapsingHeader("Lighting")) {
 
+       ImGui::Text("Position");
+       ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
+       ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
+       ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
+
        ImGui::Text("Brightness");
-       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 100.0f);
-       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 100.0f);
-       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 100.0f);
+       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 10.0f);
+       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
+       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
 
 
        ImGui::Text("Color");
@@ -144,6 +149,8 @@ int main(void)
     ourShader.setFloat("pointLight.aIntensity", Intensity[0]);
     ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
+
+    ourShader.setVec3("pointLight.position", lightPos);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
