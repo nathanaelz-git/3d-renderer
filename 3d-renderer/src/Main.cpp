@@ -37,7 +37,7 @@ int main(void)
   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
   ourShader.use();
 
-  ImportHandler iHandler(WINDOWS);
+  ImportHandler iHandler;
 
   bool drawTriangle = true;
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <glad/glad.h>
 
 #include <iostream>
@@ -6,18 +7,13 @@
 #include <vector>
 
 
-
 class ImportHandler
 {
 public:
-   Platform platform;
-   ImportHandler(Platform platform);
+   ImportHandler();
    void GetObjectFile();
+   
 };
 
-enum Platform {
-   WINDOWS, 
-   LINUX, 
-   MACOS
-};
+
 
