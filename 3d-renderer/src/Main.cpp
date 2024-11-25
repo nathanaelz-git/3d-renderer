@@ -88,6 +88,9 @@ int main(void)
     ourShader.setFloat("pointLight.constant", lightConstant);
     ourShader.setFloat("pointLight.linear", lightLinear);
     ourShader.setFloat("pointLight.quadratic", lightQuadratic);
+    ourShader.setFloat("pointLight.aIntensity", Intensity[0]);
+    ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
+    ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
 
     if (drawTriangle) backpack.Draw(ourShader);
 
@@ -101,9 +104,9 @@ int main(void)
     if (ImGui::CollapsingHeader("Lighting")) {
 
        ImGui::Text("Brightness");
-       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 255.0f);
-       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 255.0f);
-       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 255.0f);
+       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 100.0f);
+       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 100.0f);
+       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 100.0f);
 
 
        ImGui::Text("Color");
@@ -122,21 +125,25 @@ int main(void)
 
     //updating Shader
     ourShader.setFloat("size", size);
-    ourShader.setVec3("pointLight.ambient",   Intensity[0] * (ambiant[0] / 255),
-                                              Intensity[0] * (ambiant[1] / 255),
-                                              Intensity[0] * (ambiant[2] / 255));
+    ourShader.setVec3("pointLight.ambient",   (ambiant[0] / 255),
+                                              (ambiant[1] / 255),
+                                              (ambiant[2] / 255));
 
-    ourShader.setVec3("pointLight.diffuse",   Intensity[1] * (diffuse[0] / 255),
-                                              Intensity[1] * (diffuse[1] / 255),
-                                              Intensity[1] * (diffuse[2] / 255));
+    ourShader.setVec3("pointLight.diffuse",   (diffuse[0] / 255),
+                                              (diffuse[1] / 255),
+                                              (diffuse[2] / 255));
 
-    ourShader.setVec3("pointLight.specular",  Intensity[2] * (specular[0] / 255),
-                                              Intensity[2] * (specular[1] / 255),
-                                              Intensity[2] * (specular[2] / 255));
+    ourShader.setVec3("pointLight.specular",  (specular[0] / 255),
+                                              (specular[1] / 255),
+                                              (specular[2] / 255));
 
     ourShader.setFloat("pointLight.constant", lightConstant);
     ourShader.setFloat("pointLight.linear", lightLinear);
     ourShader.setFloat("pointLight.quadratic", lightQuadratic);
+
+    ourShader.setFloat("pointLight.aIntensity", Intensity[0]);
+    ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
+    ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
