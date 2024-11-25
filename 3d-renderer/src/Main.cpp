@@ -8,8 +8,10 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
+#include "ImportHandler.h"
 
 #include <iostream>
+
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
@@ -18,6 +20,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float settingTime = 0.0f;
+
 
 
 // light position
@@ -32,7 +35,9 @@ int main(void)
    Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
    ourShader.use();
 
-   bool drawTriangle = true;
+  ImportHandler iHandler;
+
+  bool drawTriangle = true;
 
    float size = 1.0f;
 
@@ -49,6 +54,8 @@ int main(void)
    ourShader.setFloat("size", size);
 
   glEnable(GL_DEPTH_TEST);  
+
+  //main while loop
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
   {
     ImGui_ImplOpenGL3_NewFrame();
@@ -92,7 +99,7 @@ int main(void)
     ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
 
-    if (drawTriangle) backpack.Draw(ourShader);
+    if (drawTriangle) currentModel.Draw(ourShader);
 
     //GUI Start
     ImGui::Begin("Settings");
@@ -125,7 +132,17 @@ int main(void)
        ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
        ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
     }
-     
+
+    if (ImGui::Button("Import Object"))
+    {
+       std::string newObjPath = iHandler.GetObjectFile();
+
+       if (!newObjPath.empty()) {
+          currentModel = Model(newObjPath);
+       }
+
+    };
+    
     ImGui::End();
 
     //updating Shader
