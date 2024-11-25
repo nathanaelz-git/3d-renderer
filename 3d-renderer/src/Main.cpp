@@ -25,17 +25,28 @@ glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 
 int main(void)
 {
-  DisplayManager::createDisplay();
+   DisplayManager::createDisplay();
 
-  Model backpack("./models/backpack/backpack.obj");
+   Model backpack("./models/backpack/backpack.obj");
 
-  Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
-  ourShader.use();
+   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
+   ourShader.use();
 
-  bool drawTriangle = true;
+   bool drawTriangle = true;
 
-  float size = 1.0f;
-  ourShader.setFloat("size", size);
+   float size = 1.0f;
+
+   //lighting variables
+   float lightConstant = 1.0f;
+   float lightLinear = 0.09f;
+   float lightQuadratic = 0.032f;
+
+   float ambiant[3] = {0.15f, 0.15f, 0.15f};
+   float diffuse[3] = {1.0f,  1.0f,  1.0f};
+   float specular[3] = {1.0f,  1.0f,  1.0f};
+   float Intensity[3] = { 1.0f,  1.0f,  1.0f };
+
+   ourShader.setFloat("size", size);
 
   glEnable(GL_DEPTH_TEST);  
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
@@ -70,23 +81,62 @@ int main(void)
     ourShader.setMat4("projection", projection);
     ourShader.setVec3("viewPos", camera.Position); 
     ourShader.setVec3("pointLight.position", lightPos);
-    ourShader.setVec3("pointLight.ambient", 0.15f, 0.15f, 0.15f);
-    ourShader.setVec3("pointLight.diffuse", 1.0f, 1.0f, 1.0f);
-    ourShader.setVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+    ourShader.setVec3("pointLight.ambient", ambiant[0], ambiant[1], ambiant[2]);
+    ourShader.setVec3("pointLight.diffuse", diffuse[0], diffuse[1], diffuse[2]);
+    ourShader.setVec3("pointLight.specular", specular[0], specular[1], specular[2]);
     ourShader.setFloat("material.shininess", 32.0f);
-    ourShader.setFloat("pointLight.constant", 1.0f);
-    ourShader.setFloat("pointLight.linear", 0.09f);
-    ourShader.setFloat("pointLight.quadratic", 0.032f);
+    ourShader.setFloat("pointLight.constant", lightConstant);
+    ourShader.setFloat("pointLight.linear", lightLinear);
+    ourShader.setFloat("pointLight.quadratic", lightQuadratic);
 
     if (drawTriangle) backpack.Draw(ourShader);
 
-    ImGui::Begin("ImGUI window");
+    //GUI Start
+    ImGui::Begin("Settings");
     // ImGui::Text("Some text here...");
-    ImGui::Checkbox("Draw", &drawTriangle);
-    ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+    if (ImGui::CollapsingHeader("View")) {
+       ImGui::Checkbox("Draw", &drawTriangle);
+       ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+    }
+    if (ImGui::CollapsingHeader("Lighting")) {
+
+       ImGui::Text("Brightness");
+       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 255.0f);
+       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 255.0f);
+       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 255.0f);
+
+
+       ImGui::Text("Color");
+       ImGui::ColorEdit3("Ambiant", ambiant);
+       ImGui::ColorEdit3("Diffuse", diffuse);
+       ImGui::ColorEdit3("Specular", specular);
+
+       //removed since it doesnt seem to do much 
+       /*ImGui::Text("math");
+       ImGui::SliderFloat("Light Constant", &lightConstant, 0.0f, 2.0f);
+       ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
+       ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
+    }
+     
     ImGui::End();
 
+    //updating Shader
     ourShader.setFloat("size", size);
+    ourShader.setVec3("pointLight.ambient",   Intensity[0] * (ambiant[0] / 255),
+                                              Intensity[0] * (ambiant[1] / 255),
+                                              Intensity[0] * (ambiant[2] / 255));
+
+    ourShader.setVec3("pointLight.diffuse",   Intensity[1] * (diffuse[0] / 255),
+                                              Intensity[1] * (diffuse[1] / 255),
+                                              Intensity[1] * (diffuse[2] / 255));
+
+    ourShader.setVec3("pointLight.specular",  Intensity[2] * (specular[0] / 255),
+                                              Intensity[2] * (specular[1] / 255),
+                                              Intensity[2] * (specular[2] / 255));
+
+    ourShader.setFloat("pointLight.constant", lightConstant);
+    ourShader.setFloat("pointLight.linear", lightLinear);
+    ourShader.setFloat("pointLight.quadratic", lightQuadratic);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
