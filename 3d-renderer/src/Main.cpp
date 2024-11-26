@@ -55,6 +55,8 @@ int main(void)
    float specular[3] = {1.0f,  1.0f,  1.0f};
    float Intensity[3] = { 1.0f,  1.0f,  1.0f };
 
+   float shininess = 32.0f;
+
    ourShader.setFloat("size", size);
 
   glEnable(GL_DEPTH_TEST);  
@@ -99,7 +101,7 @@ int main(void)
     ourShader.setVec3("pointLight.ambient", ambiant[0], ambiant[1], ambiant[2]);
     ourShader.setVec3("pointLight.diffuse", diffuse[0], diffuse[1], diffuse[2]);
     ourShader.setVec3("pointLight.specular", specular[0], specular[1], specular[2]);
-    ourShader.setFloat("material.shininess", 32.0f);
+    ourShader.setFloat("material.shininess", shininess);
     ourShader.setFloat("pointLight.constant", lightConstant);
     ourShader.setFloat("pointLight.linear", lightLinear);
     ourShader.setFloat("pointLight.quadratic", lightQuadratic);
@@ -116,13 +118,19 @@ int main(void)
        ImGui::Checkbox("Draw", &drawTriangle);
        ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
     }
-    if (ImGui::CollapsingHeader("Object Transformation"))
+    if (ImGui::CollapsingHeader("Object"))
     {
+
         ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
         ImGui::Text("X: %.2f", objectRotation.x);
         ImGui::Text("Y: %.2f", objectRotation.y);
         ImGui::Text("Z: %.2f", objectRotation.z);
+
+        ImGui::Text("Material");
+        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
+
     }
+      
     if (ImGui::CollapsingHeader("Lighting")) {
 
        ImGui::Text("Position");
@@ -160,6 +168,9 @@ int main(void)
     };
     
     ImGui::End();
+
+    //update Object 
+    ourShader.setFloat("material.shininess", shininess);
 
     //updating Shader
     ourShader.setFloat("size", size);
