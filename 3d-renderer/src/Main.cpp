@@ -21,7 +21,11 @@ float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float settingTime = 0.0f;
 
-
+// Rotation variables
+glm::vec3 objectRotation(0.0f, 0.0f, 0.0f); // Object rotation angles (degrees)
+bool rotateMode = false;                    // Indicates if rotation mode is active
+bool firstMouse = true;                     // Helper for mouse handling
+double lastX = 0.0, lastY = 0.0;            // Last mouse cursor position
 
 // light position
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
@@ -76,7 +80,12 @@ int main(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 model = glm::mat4(1.0f);
+    // Apply rotation based on objectRotation
+    model = glm::rotate(model, glm::radians(objectRotation.x), glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
+    model = glm::rotate(model, glm::radians(objectRotation.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Y-axis
+    model = glm::rotate(model, glm::radians(objectRotation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Z-axis
     model *= DisplayManager::rotateMatrix;
+
 
     view = camera.GetViewMatrix();
 
@@ -108,6 +117,13 @@ int main(void)
        ImGui::Checkbox("Draw", &drawTriangle);
        ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
     }
+    if (ImGui::CollapsingHeader("Object Transformation"))
+    {
+        ImGui::Text("Rotation");
+        ImGui::SliderFloat("Rotate X", &objectRotation.x, -180.0f, 180.0f);
+        ImGui::SliderFloat("Rotate Y", &objectRotation.y, -180.0f, 180.0f);
+        ImGui::SliderFloat("Rotate Z", &objectRotation.z, -180.0f, 180.0f);
+    }
     if (ImGui::CollapsingHeader("Lighting")) {
 
        ImGui::Text("Position");
@@ -125,6 +141,7 @@ int main(void)
        ImGui::ColorEdit3("Ambiant", ambiant);
        ImGui::ColorEdit3("Diffuse", diffuse);
        ImGui::ColorEdit3("Specular", specular);
+
 
        //removed since it doesnt seem to do much 
        /*ImGui::Text("math");
@@ -180,19 +197,36 @@ int main(void)
 
 void DisplayManager::processInput()
 {
-  if(glfwGetKey(m_WINDOW, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(m_WINDOW, true);
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(m_WINDOW, true);
 
-  // Rotate the object around
-  if (glfwGetMouseButton(m_WINDOW, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse)
-  {
-    rotateMode = true;
-  } 
-  else
-  {
-    rotateMode = false;
-    firstMouse = true;
-  }
+    // Rotate the object using mouse movement
+    if (glfwGetMouseButton(m_WINDOW, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse)
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(m_WINDOW, &xpos, &ypos);
+
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        double xOffset = xpos - lastX;
+        double yOffset = ypos - lastY;
+
+        lastX = xpos;
+        lastY = ypos;
+
+        objectRotation.y += (float)xOffset * 0.1f; // Adjust sensitivity as needed
+        objectRotation.x -= (float)yOffset * 0.1f;
+    }
+    else
+    {
+        firstMouse = true;
+    }
 }
+
 
 
