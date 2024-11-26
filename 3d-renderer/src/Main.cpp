@@ -86,7 +86,6 @@ int main(void)
     model = glm::rotate(model, glm::radians(objectRotation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Z-axis
     model *= DisplayManager::rotateMatrix;
 
-
     view = camera.GetViewMatrix();
 
     glm::mat4 projection = glm::mat4(1.0f);
@@ -119,10 +118,10 @@ int main(void)
     }
     if (ImGui::CollapsingHeader("Object Transformation"))
     {
-        ImGui::Text("Rotation");
-        ImGui::SliderFloat("Rotate X", &objectRotation.x, -180.0f, 180.0f);
-        ImGui::SliderFloat("Rotate Y", &objectRotation.y, -180.0f, 180.0f);
-        ImGui::SliderFloat("Rotate Z", &objectRotation.z, -180.0f, 180.0f);
+        ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
+        ImGui::Text("X: %.2f", objectRotation.x);
+        ImGui::Text("Y: %.2f", objectRotation.y);
+        ImGui::Text("Z: %.2f", objectRotation.z);
     }
     if (ImGui::CollapsingHeader("Lighting")) {
 
@@ -199,6 +198,25 @@ void DisplayManager::processInput()
 {
     if (glfwGetKey(m_WINDOW, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_WINDOW, true);
+
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(m_WINDOW, true);
+
+    // Rotate the object
+    float rotationSpeed = 50.0f * deltaTime; // Adjust rotation speed as needed
+
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_W) == GLFW_PRESS)
+        objectRotation.x += rotationSpeed; // Rotate up (around X-axis)
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_S) == GLFW_PRESS)
+        objectRotation.x -= rotationSpeed; // Rotate down (around X-axis)
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_A) == GLFW_PRESS)
+        objectRotation.y -= rotationSpeed; // Rotate left (around Y-axis)
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_D) == GLFW_PRESS)
+        objectRotation.y += rotationSpeed; // Rotate right (around Y-axis)
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_Q) == GLFW_PRESS)
+        objectRotation.z -= rotationSpeed; // Rotate counterclockwise (around Z-axis)
+    if (glfwGetKey(m_WINDOW, GLFW_KEY_E) == GLFW_PRESS)
+        objectRotation.z += rotationSpeed; // Rotate clockwise (around Z-axis)
 
     // Rotate the object using mouse movement
     if (glfwGetMouseButton(m_WINDOW, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse)
