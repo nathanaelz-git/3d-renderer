@@ -30,6 +30,34 @@ void Model::loadModel(std::string const &path)
   processNode(scene->mRootNode, scene);
 }
 
+void Model::UnLoadTexture(Texture texture)
+{
+   for (unsigned int j = 0; j < textures_loaded.size(); j++)
+   {
+      if (std::strcmp(textures_loaded[j].path.c_str(), texture.path.c_str()) == 0)
+      {
+         textures_loaded.erase(textures_loaded.begin() + j);
+         textures_unloaded.push_back(texture);
+         break;
+      }
+   }
+   
+}
+
+void Model::LoadTexture(Texture texture)
+{
+   for (unsigned int j = 0; j < textures_unloaded.size(); j++)
+   {
+      if (std::strcmp(textures_unloaded[j].path.c_str(), texture.path.c_str()) == 0)
+      {
+         textures_unloaded.erase(textures_unloaded.begin() + j);
+         textures_loaded.push_back(texture);
+         break;
+      }
+   }
+}
+
+
 void Model::processNode(aiNode *node, const aiScene *scene)
 {
   // process each mesh located at the current node
@@ -159,3 +187,5 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
   }
   return textures;
 }
+
+

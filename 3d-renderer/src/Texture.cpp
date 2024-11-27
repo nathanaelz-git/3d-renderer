@@ -4,6 +4,7 @@ Texture::Texture(const std::string& texturePath, const std::string& directory, s
 {
   path = texturePath;
   type = typeName;
+  selected = false;
   std::string filename = std::string(path);
   filename = directory + '/' + filename;
 

@@ -129,6 +129,15 @@ int main(void)
         ImGui::Text("Material");
         ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
 
+        if (ImGui::Button("Import Object"))
+        {
+           std::string newObjPath = fileHandler.GetObjectFile();
+
+           if (!newObjPath.empty()) {
+              currentModel = Model(newObjPath);
+           }
+        };
+
     }
       
     if (ImGui::CollapsingHeader("Lighting")) {
@@ -156,24 +165,51 @@ int main(void)
        ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
        ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
     }
-    if (ImGui::CollapsingHeader("File Controls")) {
+    if (ImGui::CollapsingHeader("Textures")) {
        
-       if (ImGui::Button("Import Object"))
+       //List of currently applied Textures
+       ImGui::BeginListBox("Loaded");
+       for (Texture item : currentModel.textures_loaded) {
+
+          std::string itemName = item.type;
+
+          if (itemName == "") {
+             continue;
+          }
+
+          if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+             currentModel.UnLoadTexture(item);
+          }
+
+       }
+       ImGui::EndListBox();
+
+       ImGui::BeginListBox("Unloaded");
+       for (Texture item : currentModel.textures_unloaded) {
+
+          std::string itemName = item.type;
+
+          if (itemName == "") {
+             continue;
+          }
+
+          if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+             currentModel.LoadTexture(item);
+
+          }
+
+       }
+       ImGui::EndListBox();
+
+       if (ImGui::Button("Import Texture"))
        {
-          std::string newObjPath = fileHandler.GetObjectFile();
+          std::string newObjPath = fileHandler.GetTextureFile();
 
           if (!newObjPath.empty()) {
-             currentModel = Model(newObjPath);
+             
           }
        };
 
-       if (ImGui::Button("Export")) {
-          puts("Exporting");
-       }
-
-       if (ImGui::Button("Copy to Clipboard")) {
-          puts("Putting to clipboard");
-       }
     }
 
     
