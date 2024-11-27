@@ -115,74 +115,66 @@ int main(void)
     if (drawTriangle) currentModel.Draw(ourShader);
 
     //GUI Start
-    ImGui::Begin("Settings");
-    // ImGui::Text("Some text here...");
-    if (ImGui::CollapsingHeader("View")) {
-       ImGui::Checkbox("Draw", &drawTriangle);
-       ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+    // Replace this block with the menu bar
+    if (ImGui::BeginMainMenuBar()) { // Creates the top bar
+        // "View" menu
+        if (ImGui::BeginMenu("View")) {
+            ImGui::Checkbox("Draw", &drawTriangle);
+            ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+            ImGui::EndMenu();
+        }
+
+        // "Object" menu
+        if (ImGui::BeginMenu("Object")) {
+            ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
+            ImGui::Text("X: %.2f", objectRotation.x);
+            ImGui::Text("Y: %.2f", objectRotation.y);
+            ImGui::Text("Z: %.2f", objectRotation.z);
+
+            ImGui::Text("Material");
+            ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
+            ImGui::ColorEdit3("Object Color", glm::value_ptr(objColor));
+            ImGui::EndMenu();
+        }
+
+        // "Lighting" menu
+        if (ImGui::BeginMenu("Lighting")) {
+            ImGui::Text("Position");
+            ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
+            ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
+            ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
+
+            ImGui::Text("Brightness");
+            ImGui::SliderFloat("Ambient", &Intensity[0], 0.0f, 10.0f);
+            ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
+            ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
+
+            ImGui::Text("Color");
+            ImGui::ColorEdit3("Ambient", ambiant);
+            ImGui::ColorEdit3("Diffuse", diffuse);
+            ImGui::ColorEdit3("Specular", specular);
+            ImGui::EndMenu();
+        }
+
+        // "File Controls" menu
+        if (ImGui::BeginMenu("File Controls")) {
+            if (ImGui::Button("Import Object")) {
+                std::string newObjPath = fileHandler.GetObjectFile();
+                if (!newObjPath.empty()) {
+                    currentModel = Model(newObjPath);
+                }
+            }
+            if (ImGui::Button("Export")) {
+                puts("Exporting");
+            }
+            if (ImGui::Button("Copy to Clipboard")) {
+                puts("Putting to clipboard");
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar(); // End the top menu bar
     }
-    if (ImGui::CollapsingHeader("Object"))
-    {
-
-        ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
-        ImGui::Text("X: %.2f", objectRotation.x);
-        ImGui::Text("Y: %.2f", objectRotation.y);
-        ImGui::Text("Z: %.2f", objectRotation.z);
-
-        ImGui::Text("Material");
-        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
-        ImGui::ColorEdit3("Object Color", glm::value_ptr(objColor));
-
-    }
-      
-    if (ImGui::CollapsingHeader("Lighting")) {
-
-       ImGui::Text("Position");
-       ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
-       ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
-       ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
-
-       ImGui::Text("Brightness");
-       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 10.0f);
-       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
-       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
-
-
-       ImGui::Text("Color");
-       ImGui::ColorEdit3("Ambiant", ambiant);
-       ImGui::ColorEdit3("Diffuse", diffuse);
-       ImGui::ColorEdit3("Specular", specular);
-
-
-       //removed since it doesnt seem to do much 
-       /*ImGui::Text("math");
-       ImGui::SliderFloat("Light Constant", &lightConstant, 0.0f, 2.0f);
-       ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
-       ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
-    }
-    if (ImGui::CollapsingHeader("File Controls")) {
-       
-       if (ImGui::Button("Import Object"))
-       {
-          std::string newObjPath = fileHandler.GetObjectFile();
-
-          if (!newObjPath.empty()) {
-             currentModel = Model(newObjPath);
-          }
-       };
-
-       if (ImGui::Button("Export")) {
-          puts("Exporting");
-       }
-
-       if (ImGui::Button("Copy to Clipboard")) {
-          puts("Putting to clipboard");
-       }
-    }
-
-    
-    
-    ImGui::End();
 
     //update Object 
     ourShader.setFloat("material.shininess", shininess);
