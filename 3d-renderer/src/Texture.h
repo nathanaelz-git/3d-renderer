@@ -14,6 +14,7 @@ public:
   std::string type;
   std::string path;
   bool selected;
+  bool visible;
 
   // Texture(const char* image, const std::string& textureType, unsigned int slot, unsigned int format, unsigned int pixelType);
   Texture(const std::string& texturePath, const std::string& directory, std::string& typeName, bool gamma);

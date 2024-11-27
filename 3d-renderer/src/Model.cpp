@@ -38,7 +38,7 @@ void Model::UnLoadTexture(Texture texture)
       {
          textures_loaded.erase(textures_loaded.begin() + j);
          textures_unloaded.push_back(texture);
-         texture.unbind();
+         texture.visible = false;
          break;
       }
    }
@@ -53,7 +53,7 @@ void Model::LoadTexture(Texture texture)
       {
          textures_unloaded.erase(textures_unloaded.begin() + j);
          textures_loaded.push_back(texture);
-         texture.bind();
+         texture.visible = true;
          break;
       }
    }
@@ -173,7 +173,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     bool skip = false;
     for(unsigned int j = 0; j < textures_loaded.size(); j++)
     {
-      if(std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+       if ((std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) && textures_loaded[j].visible)
       {
         textures.push_back(textures_loaded[j]);
         skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -183,6 +183,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     if(!skip)
     {   // if texture hasn't been loaded already, load it
       Texture texture(str.C_Str(), directory, typeName, gammaCorrection);
+
       textures.push_back(texture);
       textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
     }

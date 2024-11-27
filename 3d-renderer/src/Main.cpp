@@ -226,8 +226,6 @@ int main(void)
 
     }
 
-    
-    
     ImGui::End();
 
     //update Object 
