@@ -7,10 +7,10 @@
 #include <vector>
 
 
-class ImportHandler
+class FileHandler
 {
 public:
-   ImportHandler();
+   FileHandler();
    std::string GetObjectFile();
    
 };

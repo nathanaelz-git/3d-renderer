@@ -1,7 +1,7 @@
-#include "ImportHandler.h"
+#include "FileHandler.h"
 #include <nfd/include/nfd.h>
 
-std::string ImportHandler::GetObjectFile() {
+std::string FileHandler::GetObjectFile() {
    std::cout << "Getting the Object File" << std::endl;
 
    nfdchar_t* outPath = NULL;
@@ -25,7 +25,7 @@ std::string ImportHandler::GetObjectFile() {
    return NULL;
 }
 
-ImportHandler::ImportHandler() {
+FileHandler::FileHandler() {
    
 }
 

@@ -8,7 +8,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-#include "ImportHandler.h"
+#include "FileHandler.h"
 
 #include <iostream>
 
@@ -39,7 +39,7 @@ int main(void)
    Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
    ourShader.use();
 
-  ImportHandler iHandler;
+  FileHandler fileHandler;
 
   bool drawTriangle = true;
 
@@ -156,16 +156,27 @@ int main(void)
        ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
        ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
     }
+    if (ImGui::CollapsingHeader("File Controls")) {
+       
+       if (ImGui::Button("Import Object"))
+       {
+          std::string newObjPath = fileHandler.GetObjectFile();
 
-    if (ImGui::Button("Import Object"))
-    {
-       std::string newObjPath = iHandler.GetObjectFile();
+          if (!newObjPath.empty()) {
+             currentModel = Model(newObjPath);
+          }
+       };
 
-       if (!newObjPath.empty()) {
-          currentModel = Model(newObjPath);
+       if (ImGui::Button("Export")) {
+          puts("Exporting");
        }
 
-    };
+       if (ImGui::Button("Copy to Clipboard")) {
+          puts("Putting to clipboard");
+       }
+    }
+
+    
     
     ImGui::End();
 
