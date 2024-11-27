@@ -30,6 +30,9 @@ double lastX = 0.0, lastY = 0.0;            // Last mouse cursor position
 // light position
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 
+//Object color
+glm::vec3 objColor(1.0f, 1.0f, 1.0f);
+
 int main(void)
 {
    DisplayManager::createDisplay();
@@ -128,6 +131,7 @@ int main(void)
 
         ImGui::Text("Material");
         ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
+        ImGui::ColorEdit3("Object Color", glm::value_ptr(objColor));
 
     }
       
@@ -182,6 +186,9 @@ int main(void)
 
     //update Object 
     ourShader.setFloat("material.shininess", shininess);
+
+    //update Object Color
+    ourShader.setVec3("objColor", objColor);
 
     //updating Shader
     ourShader.setFloat("size", size);
