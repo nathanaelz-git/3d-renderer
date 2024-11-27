@@ -6,6 +6,7 @@ Texture::Texture(const std::string& texturePath, const std::string& directory, s
   type = typeName;
   selected = false;
   std::string filename = std::string(path);
+  
   filename = directory + '/' + filename;
 
   // Generates an OpenGL texture object
@@ -54,6 +55,7 @@ Texture::Texture(const std::string& texturePath, const std::string& directory, s
   // Unbinds the OpenGL Texture object so that it can't accidentally be modified
   glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 
 void Texture::bind() 
 {

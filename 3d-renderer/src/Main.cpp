@@ -167,39 +167,53 @@ int main(void)
     }
     if (ImGui::CollapsingHeader("Textures")) {
        
+       ImGui::Text("Loaded");
        //List of currently applied Textures
-       ImGui::BeginListBox("Loaded");
-       for (Texture item : currentModel.textures_loaded) {
+       if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+       {
+          
+          for (Texture item : currentModel.textures_loaded) {
 
-          std::string itemName = item.type;
+             std::string itemName = item.type;
 
-          if (itemName == "") {
-             continue;
+             if (itemName == "") {
+
+                continue;
+             }
+
+             if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+                currentModel.UnLoadTexture(item);
+
+             }
           }
-
-          if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-             currentModel.UnLoadTexture(item);
-          }
-
        }
-       ImGui::EndListBox();
+       ImGui::EndChild();
+       ImGui::AlignTextToFramePadding();
 
-       ImGui::BeginListBox("Unloaded");
-       for (Texture item : currentModel.textures_unloaded) {
+       ImGui::Text("Not Loaded");
+       //List of unloaded textures 
+       if (ImGui::BeginChild("Unloaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+       {
+          
+          for (Texture item : currentModel.textures_unloaded) {
 
-          std::string itemName = item.type;
+             std::string itemName = item.type;
 
-          if (itemName == "") {
-             continue;
+             if (itemName == "") {
+
+                continue;
+             }
+
+             if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+                currentModel.LoadTexture(item);
+
+             }
           }
-
-          if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-             currentModel.LoadTexture(item);
-
-          }
-
        }
-       ImGui::EndListBox();
+       
+       ImGui::EndChild();
+       ImGui::AlignTextToFramePadding();
+       
 
        if (ImGui::Button("Import Texture"))
        {
