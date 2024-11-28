@@ -31,6 +31,7 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform Light pointLight;
 uniform vec3 objColor; // Object color passed from the main program
+uniform bool monochrome;
 
 void main()
 {
@@ -52,5 +53,12 @@ void main()
 
     // Combine results and apply object color
     vec3 result = (ambient + diffuse + specular) * objColor;
+
+     // Apply monochrome effect if enabled
+    if (monochrome) {
+        float gray = dot(result, vec3(0.299, 0.587, 0.114)); // Grayscale conversion
+        result = vec3(gray);
+    }
+
     FragColor = vec4(result, 1.0);
 }
