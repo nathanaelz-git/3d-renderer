@@ -158,9 +158,14 @@ int main(void)
             ImGui::ColorEdit3("Diffuse", diffuse);
             ImGui::ColorEdit3("Specular", specular);
 
-            ImGui::Checkbox("Monochrome Toggle", &monochrome);
-
             ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Filters")) {
+           
+           ImGui::Checkbox("Monochrome Toggle", &monochrome);
+
+           ImGui::EndMenu();
         }
 
         // "File Controls" menu
