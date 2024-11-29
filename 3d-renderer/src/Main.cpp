@@ -182,11 +182,14 @@ int main(void)
                objColor = glm::vec3(1.0f, 1.0f, 1.0f);
                lightPos = glm::vec3(1.2f, 3.25f, 2.0f);
                size = 1.0f;
+               
                ambiant[0] = 0.15f; ambiant[1] = 0.15f; ambiant[2] = 0.15f;
                diffuse[0] = 1.0f; diffuse[1] = 1.0f; diffuse[2] = 1.0f;
                specular[0] = 1.0f; specular[1] = 1.0f; specular[2] = 1.0f;
                Intensity[0] = 1.0f; Intensity[1] = 1.0f; Intensity[2] = 1.0f;
                shininess = 32.0f;
+
+               monochrome = false;
             }
          
             ImGui::EndMenu();
