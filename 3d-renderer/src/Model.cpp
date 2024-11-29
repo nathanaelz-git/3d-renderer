@@ -173,7 +173,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     bool skip = false;
     for(unsigned int j = 0; j < textures_loaded.size(); j++)
     {
-      if(std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+       if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
       {
         textures.push_back(textures_loaded[j]);
         skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
