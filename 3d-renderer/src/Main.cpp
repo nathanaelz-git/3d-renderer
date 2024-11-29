@@ -30,6 +30,9 @@ double lastX = 0.0, lastY = 0.0;            // Last mouse cursor position
 // light position
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 
+//Object color
+glm::vec3 objColor(1.0f, 1.0f, 1.0f);
+
 int main(void)
 {
    DisplayManager::createDisplay();
@@ -112,126 +115,136 @@ int main(void)
     if (drawTriangle) currentModel.Draw(ourShader);
 
     //GUI Start
-    ImGui::Begin("Settings");
-    // ImGui::Text("Some text here...");
-    if (ImGui::CollapsingHeader("View")) {
-       ImGui::Checkbox("Draw", &drawTriangle);
-       ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
-    }
-    if (ImGui::CollapsingHeader("Object"))
-    {
+    // Replace this block with the menu bar
+    if (ImGui::BeginMainMenuBar()) { // Creates the top bar
+        // "View" menu
+        if (ImGui::BeginMenu("View")) {
+            ImGui::Checkbox("Draw", &drawTriangle);
+            ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+            ImGui::EndMenu();
+        }
 
-        ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
-        ImGui::Text("X: %.2f", objectRotation.x);
-        ImGui::Text("Y: %.2f", objectRotation.y);
-        ImGui::Text("Z: %.2f", objectRotation.z);
+        // "Object" menu
+        if (ImGui::BeginMenu("Object")) {
+            ImGui::Text("Rotation (W/S: X, A/D: Y, Q/E: Z)");
+            ImGui::Text("X: %.2f", objectRotation.x);
+            ImGui::Text("Y: %.2f", objectRotation.y);
+            ImGui::Text("Z: %.2f", objectRotation.z);
 
-        ImGui::Text("Material");
-        ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
+            ImGui::Text("Material");
+            ImGui::SliderFloat("Shininess", &shininess, 0.0f, 100.0f);
+            ImGui::ColorEdit3("Object Color", glm::value_ptr(objColor));
+            ImGui::EndMenu();
+        }
 
-        if (ImGui::Button("Import Object"))
-        {
-           std::string newObjPath = fileHandler.GetObjectFile();
+        // "Lighting" menu
+        if (ImGui::BeginMenu("Lighting")) {
+            ImGui::Text("Position");
+            ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
+            ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
+            ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
 
-           if (!newObjPath.empty()) {
-              currentModel = Model(newObjPath);
+            ImGui::Text("Brightness");
+            ImGui::SliderFloat("Ambient", &Intensity[0], 0.0f, 10.0f);
+            ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
+            ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
+
+            ImGui::Text("Color");
+            ImGui::ColorEdit3("Ambient", ambiant);
+            ImGui::ColorEdit3("Diffuse", diffuse);
+            ImGui::ColorEdit3("Specular", specular);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Textures")) {
+
+           ImGui::Text("Loaded");
+           //List of currently applied Textures
+           if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+           {
+
+              for (Texture item : currentModel.textures_loaded) {
+
+                 std::string itemName = item.type;
+
+                 if (itemName == "") {
+
+                    continue;
+                 }
+
+                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+                    currentModel.UnLoadTexture(item);
+
+                 }
+              }
            }
-        };
+           ImGui::EndChild();
+           ImGui::AlignTextToFramePadding();
 
-    }
-      
-    if (ImGui::CollapsingHeader("Lighting")) {
+           ImGui::Text("Not Loaded");
+           //List of unloaded textures 
+           if (ImGui::BeginChild("Unloaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+           {
 
-       ImGui::Text("Position");
-       ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
-       ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
-       ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
+              for (Texture item : currentModel.textures_unloaded) {
 
-       ImGui::Text("Brightness");
-       ImGui::SliderFloat("Ambiant", &Intensity[0], 0.0f, 10.0f);
-       ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
-       ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
+                 std::string itemName = item.type;
+
+                 if (itemName == "") {
+
+                    continue;
+                 }
+
+                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+                    currentModel.LoadTexture(item);
+
+                 }
+              }
+           }
+
+           ImGui::EndChild();
+           ImGui::AlignTextToFramePadding();
 
 
-       ImGui::Text("Color");
-       ImGui::ColorEdit3("Ambiant", ambiant);
-       ImGui::ColorEdit3("Diffuse", diffuse);
-       ImGui::ColorEdit3("Specular", specular);
+           if (ImGui::Button("Import Texture"))
+           {
+              std::string newObjPath = fileHandler.GetTextureFile();
 
+              if (!newObjPath.empty()) {
 
-       //removed since it doesnt seem to do much 
-       /*ImGui::Text("math");
-       ImGui::SliderFloat("Light Constant", &lightConstant, 0.0f, 2.0f);
-       ImGui::SliderFloat("Linear", &lightLinear, 0.0f, 1.0f);
-       ImGui::SliderFloat("Quadratic", &lightQuadratic, 0.0f, 0.1f);*/
-    }
-    if (ImGui::CollapsingHeader("Textures")) {
+              }
+           };
+           ImGui::EndMenu();
+        }
+
+        // "File Controls" menu
+        if (ImGui::BeginMenu("File Controls")) {
+            if (ImGui::Button("Import Object")) {
+                std::string newObjPath = fileHandler.GetObjectFile();
+                if (!newObjPath.empty()) {
+                    currentModel = Model(newObjPath);
+                }
+            }
+            if (ImGui::Button("Export")) {
+                puts("Exporting");
+            }
+            if (ImGui::Button("Copy to Clipboard")) {
+                puts("Putting to clipboard");
+            }
+            ImGui::EndMenu();
+        }
+
        
-       ImGui::Text("Loaded");
-       //List of currently applied Textures
-       if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
-       {
-          
-          for (Texture item : currentModel.textures_loaded) {
-
-             std::string itemName = item.type;
-
-             if (itemName == "") {
-
-                continue;
-             }
-
-             if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-                currentModel.UnLoadTexture(item);
-
-             }
-          }
-       }
-       ImGui::EndChild();
-       ImGui::AlignTextToFramePadding();
-
-       ImGui::Text("Not Loaded");
-       //List of unloaded textures 
-       if (ImGui::BeginChild("Unloaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
-       {
-          
-          for (Texture item : currentModel.textures_unloaded) {
-
-             std::string itemName = item.type;
-
-             if (itemName == "") {
-
-                continue;
-             }
-
-             if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-                currentModel.LoadTexture(item);
-
-             }
-          }
-       }
-       
-       ImGui::EndChild();
-       ImGui::AlignTextToFramePadding();
-       
-
-       if (ImGui::Button("Import Texture"))
-       {
-          std::string newObjPath = fileHandler.GetTextureFile();
-
-          if (!newObjPath.empty()) {
-             
-          }
-       };
-
-    }
-
     
-    
-    ImGui::End();
+
+        ImGui::EndMainMenuBar(); // End the top menu bar
+    }
 
     //update Object 
     ourShader.setFloat("material.shininess", shininess);
+
+    //update Object Color
+    ourShader.setVec3("objColor", objColor);
 
     //updating Shader
     ourShader.setFloat("size", size);
