@@ -171,30 +171,22 @@ int main(void)
                     currentModel = Model(newObjPath);
                 }
             }
-            if (ImGui::Button("Export")) {
-                puts("Exporting");
+            if (ImGui::MenuItem("Reset Scene")) {
+               // Reset all parameters to their defaults
+               objectRotation = glm::vec3(0.0f, 0.0f, 0.0f);
+               objColor = glm::vec3(1.0f, 1.0f, 1.0f);
+               lightPos = glm::vec3(1.2f, 3.25f, 2.0f);
+               size = 1.0f;
+               ambiant[0] = 0.15f; ambiant[1] = 0.15f; ambiant[2] = 0.15f;
+               diffuse[0] = 1.0f; diffuse[1] = 1.0f; diffuse[2] = 1.0f;
+               specular[0] = 1.0f; specular[1] = 1.0f; specular[2] = 1.0f;
+               Intensity[0] = 1.0f; Intensity[1] = 1.0f; Intensity[2] = 1.0f;
+               shininess = 32.0f;
             }
-            if (ImGui::Button("Copy to Clipboard")) {
-                puts("Putting to clipboard");
-            }
+         
             ImGui::EndMenu();
         }
-        // "Reset Settings" menu
-        if (ImGui::BeginMenu("Reset Settings")) {
-            if (ImGui::MenuItem("Reset All")) {
-                // Reset all parameters to their defaults
-                objectRotation = glm::vec3(0.0f, 0.0f, 0.0f);
-                objColor = glm::vec3(1.0f, 1.0f, 1.0f);
-                lightPos = glm::vec3(1.2f, 3.25f, 2.0f);
-                size = 1.0f;
-                ambiant[0] = 0.15f; ambiant[1] = 0.15f; ambiant[2] = 0.15f;
-                diffuse[0] = 1.0f; diffuse[1] = 1.0f; diffuse[2] = 1.0f;
-                specular[0] = 1.0f; specular[1] = 1.0f; specular[2] = 1.0f;
-                Intensity[0] = 1.0f; Intensity[1] = 1.0f; Intensity[2] = 1.0f;
-                shininess = 32.0f;
-            }
-            ImGui::EndMenu();
-        }
+        
         ImGui::EndMainMenuBar(); // End the top menu bar
     }
 
