@@ -165,7 +165,7 @@ int main(void)
 
               for (Texture item : currentModel.textures_loaded) {
 
-                 std::string itemName = item.type;
+                 std::string itemName = item.name;
 
                  if (itemName == "") {
 
@@ -188,7 +188,7 @@ int main(void)
 
               for (Texture item : currentModel.textures_unloaded) {
 
-                 std::string itemName = item.type;
+                 std::string itemName = item.name;
 
                  if (itemName == "") {
 

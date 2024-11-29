@@ -39,6 +39,7 @@ void Model::UnLoadTexture(Texture texture)
          textures_loaded.erase(textures_loaded.begin() + j);
          textures_unloaded.push_back(texture);
          texture.unbind();
+         texture.destroy();
          break;
       }
    }
@@ -54,6 +55,7 @@ void Model::LoadTexture(Texture texture)
          textures_unloaded.erase(textures_unloaded.begin() + j);
          textures_loaded.push_back(texture);
          texture.bind();
+         texture.generate();
          break;
       }
    }
