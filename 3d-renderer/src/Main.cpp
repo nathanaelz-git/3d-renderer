@@ -174,6 +174,7 @@ int main(void)
 
                  if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
                     currentModel.UnLoadTexture(item);
+                    currentModel.Draw(ourShader);
 
                  }
               }
@@ -197,7 +198,7 @@ int main(void)
 
                  if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
                     currentModel.LoadTexture(item);
-
+                    currentModel.Draw(ourShader);
                  }
               }
            }

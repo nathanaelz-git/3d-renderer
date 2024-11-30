@@ -32,15 +32,18 @@ void Model::loadModel(std::string const &path)
 
 void Model::UnLoadTexture(Texture texture)
 {
-   for (unsigned int j = 0; j < textures_loaded.size(); j++)
+   for (unsigned int j = 0; j < textures_loaded.size(); ++j)
    {
-      if (std::strcmp(textures_loaded[j].path.c_str(), texture.path.c_str()) == 0)
+
+      if (textures_loaded[j].textureID == texture.textureID)
       {
-         textures_loaded.erase(textures_loaded.begin() + j);
          textures_unloaded.push_back(texture);
-         texture.unbind();
+         textures_loaded.erase(textures_loaded.begin() + j);
+
+         std::cout << "\nremoving: " << texture.name << ", " << texture.textureID << std::endl;
          texture.destroy();
          break;
+         
       }
    }
    
@@ -48,17 +51,24 @@ void Model::UnLoadTexture(Texture texture)
 
 void Model::LoadTexture(Texture texture)
 {
-   for (unsigned int j = 0; j < textures_unloaded.size(); j++)
+   for (unsigned int j = 0; j < textures_unloaded.size(); ++j)
    {
-      if (std::strcmp(textures_unloaded[j].path.c_str(), texture.path.c_str()) == 0)
+
+      if (textures_unloaded[j].textureID == texture.textureID)
       {
-         textures_unloaded.erase(textures_unloaded.begin() + j);
          textures_loaded.push_back(texture);
-         texture.bind();
-         texture.generate();
+         textures_unloaded.erase(textures_unloaded.begin() + j );
+        
+         std::cout << "\nadding: " << texture.name << ", " << texture.textureID << std::endl;
+
+         texture.generate(); 
          break;
+         //glActiveTexture(GL_TEXTURE0 + texture.textureID);
       }
+     
+      
    }
+   
 }
 
 
@@ -177,6 +187,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     {
        if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
       {
+
         textures.push_back(textures_loaded[j]);
         skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
         break;

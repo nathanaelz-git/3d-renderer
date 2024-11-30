@@ -28,6 +28,7 @@ public:
   std::vector<Texture> textures_unloaded; //stores all the textures not loaded but stored for later use
   std::vector<Mesh> meshes;
   std::string directory;
+  std::string fullpath;
   bool gammaCorrection;
 
   // constructor, expects a filepath to a 3D model.
