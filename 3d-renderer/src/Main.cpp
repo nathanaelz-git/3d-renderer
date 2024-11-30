@@ -202,9 +202,10 @@ int main(void)
            if (ImGui::Button("Import Texture"))
            {
      
-              std::string fileName = "Placeholder";
-              std::string newObjPath = fileHandler.GetTextureFile();
-             
+              std::string fileName;
+              std::string newObjPath = fileHandler.GetTextureFile(fileName);
+
+            
 
               if (!newObjPath.empty()) {
 
