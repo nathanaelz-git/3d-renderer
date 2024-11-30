@@ -170,6 +170,34 @@ int main(void)
 
         if (ImGui::BeginMenu("Textures")) {
 
+           ImGui::Text("Loaded Textures");
+           //List of currently applied Textures
+           if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+           {
+
+              for (Texture item : currentModel.textures) {
+
+                 std::string itemName = item.name;
+
+                 if (itemName == "") {
+
+                    continue;
+                 }
+
+                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+
+                    for (Texture t : currentModel.textures_loaded) {
+                       currentModel.UnLoadTexture(t);
+                    }
+
+                    Texture texture(item.filename, item.name, false);
+                    currentModel.textures_loaded.push_back(texture);
+                 }
+              }
+           }
+           ImGui::EndChild();
+           ImGui::AlignTextToFramePadding();
+
 
            if (ImGui::Button("Import Texture"))
            {
@@ -181,11 +209,12 @@ int main(void)
               if (!newObjPath.empty()) {
 
                  for (Texture t : currentModel.textures_loaded) {
-                    t.destroy();
+                    currentModel.UnLoadTexture(t);
                  }
 
                  Texture texture(newObjPath, fileName, false);
                  currentModel.textures_loaded.push_back(texture);
+                 currentModel.textures.push_back(texture);
                  
               }
            };
