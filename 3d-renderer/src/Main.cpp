@@ -168,6 +168,30 @@ int main(void)
            ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("Textures")) {
+
+
+           if (ImGui::Button("Import Texture"))
+           {
+     
+              std::string fileName = "Placeholder";
+              std::string newObjPath = fileHandler.GetTextureFile();
+             
+
+              if (!newObjPath.empty()) {
+
+                 for (Texture t : currentModel.textures_loaded) {
+                    t.destroy();
+                 }
+
+                 Texture texture(newObjPath, fileName, false);
+                 currentModel.textures_loaded.push_back(texture);
+                 
+              }
+           };
+           ImGui::EndMenu();
+        }
+
         // "File Controls" menu
         if (ImGui::BeginMenu("File Controls")) {
             if (ImGui::Button("Import Object")) {

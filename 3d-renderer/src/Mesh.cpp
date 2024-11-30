@@ -23,7 +23,7 @@ void Mesh::Draw(Shader &shader)
     glActiveTexture(GL_TEXTURE0 + i);
     // retrieve texture number (the N in diffuse_textureN)
     std::string number;
-    std::string name = textures[i].type;
+    std::string name = textures[i].name;
     if(name == "texture_diffuse")
       number = std::to_string(diffuseNr++);
     else if(name == "texture_specular")

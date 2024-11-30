@@ -12,6 +12,7 @@ class FileHandler
 public:
    FileHandler();
    std::string GetObjectFile();
+   std::string GetTextureFile();
    
 };
 
