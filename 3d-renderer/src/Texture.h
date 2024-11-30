@@ -21,6 +21,7 @@ public:
 
   // Texture(const char* image, const std::string& textureType, unsigned int slot, unsigned int format, unsigned int pixelType);
   Texture(const std::string& texturePath, const std::string& directory, std::string& typeName, bool gamma);
+  Texture(const std::string& path, std::string& typeName, bool gamma);
 
   // Binds a texture
   void bind();

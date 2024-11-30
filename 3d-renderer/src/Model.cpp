@@ -30,48 +30,6 @@ void Model::loadModel(std::string const &path)
   processNode(scene->mRootNode, scene);
 }
 
-void Model::UnLoadTexture(Texture texture)
-{
-   for (unsigned int j = 0; j < textures_loaded.size(); ++j)
-   {
-
-      if (textures_loaded[j].textureID == texture.textureID)
-      {
-         textures_unloaded.push_back(texture);
-         textures_loaded.erase(textures_loaded.begin() + j);
-
-         std::cout << "\nremoving: " << texture.name << ", " << texture.textureID << std::endl;
-         texture.destroy();
-         break;
-         
-      }
-   }
-   
-}
-
-void Model::LoadTexture(Texture texture)
-{
-   for (unsigned int j = 0; j < textures_unloaded.size(); ++j)
-   {
-
-      if (textures_unloaded[j].textureID == texture.textureID)
-      {
-         textures_loaded.push_back(texture);
-         textures_unloaded.erase(textures_unloaded.begin() + j );
-        
-         std::cout << "\nadding: " << texture.name << ", " << texture.textureID << std::endl;
-
-         texture.generate(); 
-         break;
-         //glActiveTexture(GL_TEXTURE0 + texture.textureID);
-      }
-     
-      
-   }
-   
-}
-
-
 void Model::processNode(aiNode *node, const aiScene *scene)
 {
   // process each mesh located at the current node

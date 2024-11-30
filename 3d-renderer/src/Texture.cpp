@@ -56,24 +56,14 @@ Texture::Texture(const std::string& texturePath, const std::string& directory, s
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-void Texture::bind() 
+Texture::Texture(const std::string& path, std::string& typeName, bool gamma)
 {
-  glBindTexture(GL_TEXTURE_2D, textureID);
-}
+   name = typeName;
+   selected = false;
+   filename = std::string(path);
 
-void Texture::unbind() 
-{
-  glBindTexture(GL_TEXTURE_2D, 0);
-}
+   filename = path;
 
-void Texture::destroy() 
-{
-  glDeleteTextures(1, &textureID);
-}
-
-void Texture::generate()
-{
    // Generates an OpenGL texture object
    glGenTextures(1, &textureID);
 
@@ -120,3 +110,19 @@ void Texture::generate()
    // Unbinds the OpenGL Texture object so that it can't accidentally be modified
    glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Texture::bind() 
+{
+  glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void Texture::unbind() 
+{
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Texture::destroy() 
+{
+  glDeleteTextures(1, &textureID);
+}
+

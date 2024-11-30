@@ -158,61 +158,23 @@ int main(void)
 
         if (ImGui::BeginMenu("Textures")) {
 
-           ImGui::Text("Loaded");
-           //List of currently applied Textures
-           if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
-           {
-
-              for (Texture item : currentModel.textures_loaded) {
-
-                 std::string itemName = item.name;
-
-                 if (itemName == "") {
-
-                    continue;
-                 }
-
-                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-                    currentModel.UnLoadTexture(item);
-                    currentModel.Draw(ourShader);
-
-                 }
-              }
-           }
-           ImGui::EndChild();
-           ImGui::AlignTextToFramePadding();
-
-           ImGui::Text("Not Loaded");
-           //List of unloaded textures 
-           if (ImGui::BeginChild("Unloaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
-           {
-
-              for (Texture item : currentModel.textures_unloaded) {
-
-                 std::string itemName = item.name;
-
-                 if (itemName == "") {
-
-                    continue;
-                 }
-
-                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
-                    currentModel.LoadTexture(item);
-                    currentModel.Draw(ourShader);
-                 }
-              }
-           }
-
-           ImGui::EndChild();
-           ImGui::AlignTextToFramePadding();
-
 
            if (ImGui::Button("Import Texture"))
            {
+     
+              std::string fileName = "Placeholder";
               std::string newObjPath = fileHandler.GetTextureFile();
+             
 
               if (!newObjPath.empty()) {
 
+                 for (Texture t : currentModel.textures_loaded) {
+                    t.destroy();
+                 }
+
+                 Texture texture(newObjPath, fileName, false);
+                 currentModel.textures_loaded.push_back(texture);
+                 
               }
            };
            ImGui::EndMenu();
