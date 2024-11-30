@@ -31,7 +31,7 @@ std::string FileHandler::GetTextureFile()
 
    nfdchar_t* outPath = NULL;
 
-   nfdresult_t result = NFD_OpenDialog("png,jpg", NULL, &outPath);
+   nfdresult_t result = NFD_OpenDialog("png", NULL, &outPath);
 
 
    if (result == NFD_OKAY) {

@@ -33,6 +33,9 @@ glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 //Object color
 glm::vec3 objColor(1.0f, 1.0f, 1.0f);
 
+//Monochrome toggle
+bool monochrome = false;
+
 int main(void)
 {
    DisplayManager::createDisplay();
@@ -111,6 +114,7 @@ int main(void)
     ourShader.setFloat("pointLight.aIntensity", Intensity[0]);
     ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
+    ourShader.setBool("monochrome", monochrome);
 
     if (drawTriangle) currentModel.Draw(ourShader);
 
@@ -153,7 +157,15 @@ int main(void)
             ImGui::ColorEdit3("Ambient", ambiant);
             ImGui::ColorEdit3("Diffuse", diffuse);
             ImGui::ColorEdit3("Specular", specular);
+
             ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Filters")) {
+           
+           ImGui::Checkbox("Monochrome Toggle", &monochrome);
+
+           ImGui::EndMenu();
         }
 
         if (ImGui::BeginMenu("Textures")) {
@@ -188,18 +200,25 @@ int main(void)
                     currentModel = Model(newObjPath);
                 }
             }
-            if (ImGui::Button("Export")) {
-                puts("Exporting");
+            if (ImGui::MenuItem("Reset Scene")) {
+               // Reset all parameters to their defaults
+               objectRotation = glm::vec3(0.0f, 0.0f, 0.0f);
+               objColor = glm::vec3(1.0f, 1.0f, 1.0f);
+               lightPos = glm::vec3(1.2f, 3.25f, 2.0f);
+               size = 1.0f;
+               
+               ambiant[0] = 0.15f; ambiant[1] = 0.15f; ambiant[2] = 0.15f;
+               diffuse[0] = 1.0f; diffuse[1] = 1.0f; diffuse[2] = 1.0f;
+               specular[0] = 1.0f; specular[1] = 1.0f; specular[2] = 1.0f;
+               Intensity[0] = 1.0f; Intensity[1] = 1.0f; Intensity[2] = 1.0f;
+               shininess = 32.0f;
+
+               monochrome = false;
             }
-            if (ImGui::Button("Copy to Clipboard")) {
-                puts("Putting to clipboard");
-            }
+         
             ImGui::EndMenu();
         }
-
-       
-    
-
+        
         ImGui::EndMainMenuBar(); // End the top menu bar
     }
 
