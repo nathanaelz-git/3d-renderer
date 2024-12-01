@@ -32,8 +32,9 @@ bool rotateMode = false;                    // Indicates if rotation mode is act
 bool firstMouse = true;                     // Helper for mouse handling
 double lastX = 0.0, lastY = 0.0;            // Last mouse cursor position
 
-// light position
+// light positions
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
+glm::vec3 lightPos2(1.2f, 3.25f, 2.0f);
 
 //Object color
 glm::vec3 objColor(1.0f, 1.0f, 1.0f);
@@ -63,7 +64,7 @@ int main(void)
 
    float size = 1.0f;
 
-   //lighting variables
+   //lighting variables for base light
    float lightConstant = 1.0f;
    float lightLinear = 0.09f;
    float lightQuadratic = 0.032f;
@@ -72,6 +73,14 @@ int main(void)
    float diffuse[3] = {1.0f,  1.0f,  1.0f};
    float specular[3] = {1.0f,  1.0f,  1.0f};
    float Intensity[3] = { 1.0f,  1.0f,  1.0f };
+
+   //lighting variables for aux light
+   bool auxLightEnabled = true;
+
+   float ambiant2[3] = { 0.15f, 0.15f, 0.15f };
+   float diffuse2[3] = { 1.0f,  1.0f,  1.0f };
+   float specular2[3] = { 1.0f,  1.0f,  1.0f };
+   float Intensity2[3] = { 1.0f,  1.0f,  1.0f };
 
    float shininess = 32.0f;
 
@@ -156,22 +165,40 @@ int main(void)
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(45.0f), (float) DisplayManager::m_SCR_WIDTH / (float) DisplayManager::m_SCR_HEIGHT, 0.1f, 100.0f);
 
+    //setting starting variables for the shader we will be using
     ourShader.setMat4("model", model);
     ourShader.setMat4("view", view);
     ourShader.setMat4("projection", projection);
     ourShader.setVec3("viewPos", camera.Position); 
+
     ourShader.setVec3("pointLight.position", lightPos);
     ourShader.setVec3("pointLight.ambient", ambiant[0], ambiant[1], ambiant[2]);
     ourShader.setVec3("pointLight.diffuse", diffuse[0], diffuse[1], diffuse[2]);
     ourShader.setVec3("pointLight.specular", specular[0], specular[1], specular[2]);
-    ourShader.setFloat("material.shininess", shininess);
-    ourShader.setFloat("pointLight.constant", lightConstant);
-    ourShader.setFloat("pointLight.linear", lightLinear);
-    ourShader.setFloat("pointLight.quadratic", lightQuadratic);
     ourShader.setFloat("pointLight.aIntensity", Intensity[0]);
     ourShader.setFloat("pointLight.dIntensity", Intensity[1]);
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
+
+    ourShader.setVec3("pointLight2.position", lightPos2);
+    ourShader.setVec3("pointLight2.ambient", ambiant2[0], ambiant2[1], ambiant2[2]);
+    ourShader.setVec3("pointLight2.diffuse", diffuse2[0], diffuse2[1], diffuse2[2]);
+    ourShader.setVec3("pointLight2.specular", specular2[0], specular2[1], specular2[2]);
+    ourShader.setFloat("pointLight2.aIntensity", Intensity2[0]);
+    ourShader.setFloat("pointLight2.dIntensity", Intensity2[1]);
+    ourShader.setFloat("pointLight2.sIntensity", Intensity2[2]);
+
+    ourShader.setFloat("material.shininess", shininess);
+
+    ourShader.setFloat("pointLight.constant", lightConstant);
+    ourShader.setFloat("pointLight.linear", lightLinear);
+    ourShader.setFloat("pointLight.quadratic", lightQuadratic);
+
+    ourShader.setFloat("pointLight2.constant", lightConstant);
+    ourShader.setFloat("pointLight2.linear", lightLinear);
+    ourShader.setFloat("pointLight2.quadratic", lightQuadratic);
+    
     ourShader.setBool("monochrome", monochrome);
+    ourShader.setBool("auxLightOn", auxLightEnabled);
 
     if (drawTriangle) {
       if (drawOutline) {
@@ -234,20 +261,43 @@ int main(void)
 
         // "Lighting" menu
         if (ImGui::BeginMenu("Lighting")) {
-            ImGui::Text("Position");
-            ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
-            ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
-            ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
+           if (ImGui::CollapsingHeader("Base Light"))
+           {
+              ImGui::Text("Position");
+              ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
+              ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
+              ImGui::SliderFloat("Z", &lightPos.z, -10.0f, 10.0f);
 
-            ImGui::Text("Brightness");
-            ImGui::SliderFloat("Ambient", &Intensity[0], 0.0f, 10.0f);
-            ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
-            ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
+              ImGui::Text("Brightness");
+              ImGui::SliderFloat("Ambient", &Intensity[0], 0.0f, 10.0f);
+              ImGui::SliderFloat("Diffuse", &Intensity[1], 0.0f, 10.0f);
+              ImGui::SliderFloat("Specular", &Intensity[2], 0.0f, 10.0f);
 
-            ImGui::Text("Color");
-            ImGui::ColorEdit3("Ambient", ambiant);
-            ImGui::ColorEdit3("Diffuse", diffuse);
-            ImGui::ColorEdit3("Specular", specular);
+              ImGui::Text("Color");
+              ImGui::ColorEdit3("Ambient", ambiant);
+              ImGui::ColorEdit3("Diffuse", diffuse);
+              ImGui::ColorEdit3("Specular", specular);
+           }
+
+            if (ImGui::CollapsingHeader("Aux Light" ))
+            {
+               ImGui::Checkbox("Enabled", &auxLightEnabled);
+
+               ImGui::Text("Aux Position");
+               ImGui::SliderFloat("Aux X", &lightPos2.x, -10.0f, 10.0f);
+               ImGui::SliderFloat("Aux Y", &lightPos2.y, -10.0f, 10.0f);
+               ImGui::SliderFloat("Aux Z", &lightPos2.z, -10.0f, 10.0f);
+
+               ImGui::Text("Aux Brightness");
+               ImGui::SliderFloat("Aux Ambient", &Intensity2[0], 0.0f, 10.0f);
+               ImGui::SliderFloat("Aux Diffuse", &Intensity2[1], 0.0f, 10.0f);
+               ImGui::SliderFloat("Aux Specular", &Intensity2[2], 0.0f, 10.0f);
+
+               ImGui::Text("Aux Color");
+               ImGui::ColorEdit3("Aux Ambient", ambiant2);
+               ImGui::ColorEdit3("Aux Diffuse", diffuse2);
+               ImGui::ColorEdit3("Aux Specular", specular2);
+            }
 
             ImGui::EndMenu();
         }
@@ -262,22 +312,52 @@ int main(void)
 
         if (ImGui::BeginMenu("Textures")) {
 
+           ImGui::Text("Loaded Textures");
+           //List of currently applied Textures
+           if (ImGui::BeginChild("Loaded", ImVec2(ImGui::CalcItemWidth(), ImGui::GetTextLineHeight() * 7.5f), ImGuiChildFlags_FrameStyle))
+           {
+
+              for (Texture item : currentModel.textures) {
+
+                 std::string itemName = item.name;
+
+                 if (itemName == "") {
+
+                    continue;
+                 }
+
+                 if (ImGui::Selectable(itemName.c_str(), &item.selected)) {
+
+                    for (Texture t : currentModel.textures_loaded) {
+                       currentModel.UnLoadTexture(t);
+                    }
+
+                    Texture texture(item.filename, item.name, false);
+                    currentModel.textures_loaded.push_back(texture);
+                 }
+              }
+           }
+           ImGui::EndChild();
+           ImGui::AlignTextToFramePadding();
+
 
            if (ImGui::Button("Import Texture"))
            {
      
-              std::string fileName = "Placeholder";
-              std::string newObjPath = fileHandler.GetTextureFile();
-             
+              std::string fileName;
+              std::string newObjPath = fileHandler.GetTextureFile(fileName);
+
+            
 
               if (!newObjPath.empty()) {
 
                  for (Texture t : currentModel.textures_loaded) {
-                    t.destroy();
+                    currentModel.UnLoadTexture(t);
                  }
 
                  Texture texture(newObjPath, fileName, false);
                  currentModel.textures_loaded.push_back(texture);
+                 currentModel.textures.push_back(texture);
                  
               }
            };
@@ -344,6 +424,29 @@ int main(void)
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
 
     ourShader.setVec3("pointLight.position", lightPos);
+
+    //determine if aux light is enabled and update value if true
+
+    ourShader.setBool("auxLightOn", auxLightEnabled);
+
+    ourShader.setVec3("pointLight2.ambient", (ambiant2[0] / 255),
+       (ambiant2[1] / 255),
+       (ambiant2[2] / 255));
+
+    ourShader.setVec3("pointLight2.diffuse", (diffuse2[0] / 255),
+       (diffuse2[1] / 255),
+       (diffuse2[2] / 255));
+
+    ourShader.setVec3("pointLight2.specular", (specular2[0] / 255),
+       (specular2[1] / 255),
+       (specular2[2] / 255));
+
+    ourShader.setFloat("pointLight2.aIntensity", Intensity2[0]);
+    ourShader.setFloat("pointLight2.dIntensity", Intensity2[1]);
+    ourShader.setFloat("pointLight2.sIntensity", Intensity2[2]);
+       
+    ourShader.setVec3("pointLight2.position", lightPos2);
+   
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

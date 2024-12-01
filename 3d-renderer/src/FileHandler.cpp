@@ -25,7 +25,7 @@ std::string FileHandler::GetObjectFile() {
    return "";
 }
 
-std::string FileHandler::GetTextureFile()
+std::string FileHandler::GetTextureFile(std::string &name)
 {
    std::cout << "Getting the Texture File" << std::endl;
 
@@ -37,6 +37,10 @@ std::string FileHandler::GetTextureFile()
    if (result == NFD_OKAY) {
       puts("Success!");
       puts(outPath);
+
+      //get and set file name 
+      name = GetFileName(outPath);
+
       return outPath;
       free(outPath);
    }
@@ -48,6 +52,27 @@ std::string FileHandler::GetTextureFile()
    }
 
    return "";
+}
+
+std::string FileHandler::GetFileName(std::string path)
+{
+   
+
+   std::string delimiter = "\\";
+
+   size_t pos = 0;
+
+   std::string token;
+
+   while ((pos = path.find(delimiter)) != std::string::npos) {
+
+      token = path.substr(0, pos);
+
+      path.erase(0, pos + delimiter.length());
+
+   }
+
+   return path;
 }
 
 FileHandler::FileHandler() {
