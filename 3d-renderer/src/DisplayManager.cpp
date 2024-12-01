@@ -20,6 +20,7 @@ void DisplayManager::createDisplay() {
   glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_SAMPLES, 8);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   GLFWmonitor* MyMonitor =  glfwGetPrimaryMonitor(); 
@@ -31,7 +32,7 @@ void DisplayManager::createDisplay() {
 
   m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "Renderer", NULL, NULL);
   // Full screen
-  // m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "3D Game", MyMonitor, NULL);
+  // m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "Renderer", MyMonitor, NULL);
   if (m_WINDOW == NULL) {
     std::cout << ("Failed to create GLFW window\n") << '\n';
     closeDisplay();

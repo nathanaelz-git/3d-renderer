@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
 
 #include "DisplayManager.h"
 #include "VertexArray.h"
@@ -11,6 +12,10 @@
 #include "FileHandler.h"
 
 #include <iostream>
+#include <ctime>
+#include <chrono>
+#include <iomanip>  
+#include <sstream> 
 
 
 // Camera
@@ -36,7 +41,10 @@ glm::vec3 objColor(1.0f, 1.0f, 1.0f);
 //Monochrome toggle
 bool monochrome = false;
 
-unsigned int samples = 8;
+// Screenshot variables
+bool screenshotRequested = false;
+std::chrono::steady_clock::time_point lastScreenshotTime = std::chrono::steady_clock::now();
+const double screenshotCooldown = 1.0; // Cooldown period in seconds
 
 int main(void)
 {
@@ -72,6 +80,7 @@ int main(void)
   // Enable the depth buffer
   glEnable(GL_DEPTH_TEST);  
 
+
   glEnable(GL_STENCIL_TEST);
   // Enable cull facing, improve performance
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -87,15 +96,21 @@ int main(void)
   // Default v-sync setting 
   bool vSyncEnabled = true;
 
+  bool antiAliasEnabled = true;
+
   //main while loop
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
   {
     ourShader.use();
     // enable vsync
-    if (vSyncEnabled) {
+    if (vSyncEnabled)
       glfwSwapInterval(1);
-    }
     else glfwSwapInterval(0);
+
+    // enable anti aliasing
+    if (antiAliasEnabled)
+      glEnable(GL_MULTISAMPLE);
+    else glDisable(GL_MULTISAMPLE);
 
     double currentTime = glfwGetTime();
     frameCount++;
@@ -120,7 +135,6 @@ int main(void)
 
     // input
     DisplayManager::processInput();
-
     /* Render */ 
     // Bind the custom framebuffer
     glViewport(0, 0, DisplayManager::m_SCR_WIDTH, DisplayManager::m_SCR_HEIGHT);
@@ -192,13 +206,14 @@ int main(void)
       }
     }
 
-    //GUI Start
+    // Begin Main Menu Bar
     // Replace this block with the menu bar
     if (ImGui::BeginMainMenuBar()) { // Creates the top bar
         // "View" menu
         if (ImGui::BeginMenu("View")) {
             ImGui::Checkbox("Draw", &drawTriangle);
             ImGui::Checkbox("Enable VSync", &vSyncEnabled);
+            ImGui::Checkbox("Enable Anti Alasing", &antiAliasEnabled);
             ImGui::SliderFloat("Resize", &size, 0.1f, 5.0f);
             ImGui::Text("FPS: %.1f", fps);
             ImGui::EndMenu();
@@ -295,20 +310,18 @@ int main(void)
                vSyncEnabled = true;
 
             }
-         
             ImGui::EndMenu();
         }
-        
         ImGui::EndMainMenuBar(); // End the top menu bar
     }
 
-    //update Object 
+    // Update Object 
     ourShader.setFloat("material.shininess", shininess);
 
-    //update Object Color
+    // Update Object Color
     ourShader.setVec3("objColor", objColor);
 
-    //updating Shader
+    // Updating Shader
     ourShader.setFloat("size", size);
     ourShader.setVec3("pointLight.ambient",   (ambiant[0] / 255),
                                               (ambiant[1] / 255),
@@ -334,6 +347,51 @@ int main(void)
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    if (screenshotRequested) {
+      screenshotRequested = false;
+
+      // Read pixels
+      int width = DisplayManager::m_SCR_WIDTH;
+      int height = DisplayManager::m_SCR_HEIGHT;
+
+      unsigned char* pixels = new unsigned char[width * height * 3]; // For RGB
+
+      glPixelStorei(GL_PACK_ALIGNMENT, 1); // Ensure alignment is 1
+      glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+      // Flip the image vertically
+      int rowSize = width * 3;
+      unsigned char* row = new unsigned char[rowSize];
+      for (int y = 0; y < height / 2; y++) {
+        unsigned char* row1 = pixels + y * rowSize;
+        unsigned char* row2 = pixels + (height - 1 - y) * rowSize;
+        memcpy(row, row1, rowSize);
+        memcpy(row1, row2, rowSize);
+        memcpy(row2, row, rowSize);
+      }
+      delete[] row;
+
+      // Generate filename with timestamp
+      auto now = std::chrono::system_clock::now();
+      std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+      struct tm timeinfo;
+
+      localtime_s(&timeinfo, &now_c);
+      std::ostringstream oss;
+      oss << "screenshot_"
+          << std::put_time(&timeinfo, "%Y%m%d_%H%M%S")
+          << ".png";
+      std::string filename = oss.str();
+
+      // Use stb_image_write to save image
+      stbi_write_png(filename.c_str(), width, height, 3, pixels, width * 3);
+
+      delete[] pixels;
+
+      // Confirmation message
+      std::cout << "Screenshot saved to " << filename << std::endl;
+    }
 
     DisplayManager::updateDisplay();
   }
@@ -364,6 +422,21 @@ void DisplayManager::processInput()
         objectRotation.z -= rotationSpeed; // Rotate counterclockwise (around Z-axis)
     if (glfwGetKey(m_WINDOW, GLFW_KEY_E) == GLFW_PRESS)
         objectRotation.z += rotationSpeed; // Rotate clockwise (around Z-axis)
+
+    // Handle screenshot input
+    static bool fKeyPreviouslyPressed = false;
+    bool fKeyCurrentlyPressed = glfwGetKey(m_WINDOW, GLFW_KEY_F) == GLFW_PRESS;
+
+    if (fKeyCurrentlyPressed && !fKeyPreviouslyPressed) {
+      auto now = std::chrono::steady_clock::now();
+      double secondsSinceLastScreenshot = std::chrono::duration<double>(now - lastScreenshotTime).count();
+
+      if (secondsSinceLastScreenshot >= screenshotCooldown) {
+        screenshotRequested = true;
+        lastScreenshotTime = now;
+      }
+    }
+    fKeyPreviouslyPressed = fKeyCurrentlyPressed;
 
     // Rotate the object using mouse movement
     if (glfwGetMouseButton(m_WINDOW, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && !ImGui::GetIO().WantCaptureMouse)
