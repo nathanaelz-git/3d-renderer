@@ -30,8 +30,10 @@ struct Light {
 uniform vec3 viewPos;
 uniform Material material;
 uniform Light pointLight;
+uniform Light pointLight2;
 uniform vec3 objColor; // Object color passed from the main program
 uniform bool monochrome;
+uniform bool auxLightOn;
 
 void main()
 {
@@ -42,15 +44,33 @@ void main()
 
     // Diffuse shading
     vec3 lightVec = normalize(pointLight.position - FragPos);
+    
     float diff = max(dot(normalVec, lightVec), 0.0);
+    
     vec3 diffuse = pointLight.diffuse * pointLight.dIntensity * diff * vec3(texture(material.diffuse, TexCoords));
 
     // Specular shading
     vec3 viewVec = normalize(viewPos - FragPos);
-    vec3 reflectVec = reflect(-lightVec, normalVec);
-    float spec = pow(max(dot(viewVec, reflectVec), 0.0), material.shininess);
-    vec3 specular = pointLight.specular * pointLight.sIntensity * spec * vec3(texture(material.specular, TexCoords));
 
+
+    vec3 reflectVec = reflect(-lightVec, normalVec);
+    
+    float spec = pow(max(dot(viewVec, reflectVec), 0.0), material.shininess);
+    
+    vec3 specular =  pointLight.specular * pointLight.sIntensity * spec * vec3(texture(material.specular, TexCoords));
+
+    if (auxLightOn){
+
+        vec3 lightVec2 = normalize(pointLight2.position - FragPos);
+        float diff2 = max(dot(normalVec, lightVec2), 0.0);
+        vec3 reflectVec2 = reflect(-lightVec2, normalVec);
+        float spec2 = pow(max(dot(viewVec, reflectVec2), 0.0), material.shininess);
+
+        ambient  += pointLight2.ambient * pointLight2.aIntensity * vec3(texture(material.diffuse, TexCoords));
+        diffuse  += pointLight2.diffuse * pointLight2.dIntensity * diff2 * vec3(texture(material.diffuse, TexCoords));
+        specular += pointLight2.specular * pointLight2.sIntensity * spec2 * vec3(texture(material.specular, TexCoords));
+
+    }
     // Combine results and apply object color
     vec3 result = (ambient + diffuse + specular) * objColor;
 
