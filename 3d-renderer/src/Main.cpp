@@ -36,6 +36,8 @@ glm::vec3 objColor(1.0f, 1.0f, 1.0f);
 //Monochrome toggle
 bool monochrome = false;
 
+unsigned int samples = 8;
+
 int main(void)
 {
    DisplayManager::createDisplay();
@@ -43,11 +45,13 @@ int main(void)
    Model currentModel("./models/backpack/backpack.obj");
 
    Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
-   ourShader.use();
+
+   Shader outliningShader("src/Shaders/outlining.vert", "src/Shaders/outlining.frag");
 
   FileHandler fileHandler;
 
   bool drawTriangle = true;
+  bool drawOutline = false;
 
    float size = 1.0f;
 
@@ -65,11 +69,45 @@ int main(void)
 
    ourShader.setFloat("size", size);
 
+  // Enable the depth buffer
   glEnable(GL_DEPTH_TEST);  
+
+  glEnable(GL_STENCIL_TEST);
+  // Enable cull facing, improve performance
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
+  glFrontFace(GL_CW);
+
+  // FPS display variables
+  double previousTime = glfwGetTime();
+  int frameCount = 0;
+  float fps = 0.0f;
+
+  // Default v-sync setting 
+  bool vSyncEnabled = true;
 
   //main while loop
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
   {
+    ourShader.use();
+    // enable vsync
+    if (vSyncEnabled) {
+      glfwSwapInterval(1);
+    }
+    else glfwSwapInterval(0);
+
+    double currentTime = glfwGetTime();
+    frameCount++;
+
+    // Update FPS every second
+    if (currentTime - previousTime >= 1.0) {
+      fps = frameCount / (currentTime - previousTime);
+
+      // Reset for next calculation
+      previousTime = currentTime;
+      frameCount = 0;
+    }
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -83,12 +121,17 @@ int main(void)
     // input
     DisplayManager::processInput();
 
-    // render
+    /* Render */ 
+    // Bind the custom framebuffer
+    glViewport(0, 0, DisplayManager::m_SCR_WIDTH, DisplayManager::m_SCR_HEIGHT);
+    // Specifying the background color
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Clean the buffers
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glm::mat4 model = glm::mat4(1.0f);
     // Apply rotation based on objectRotation
+    model = glm::scale(model, glm::vec3(size));
     model = glm::rotate(model, glm::radians(objectRotation.x), glm::vec3(1.0f, 0.0f, 0.0f)); // X-axis
     model = glm::rotate(model, glm::radians(objectRotation.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Y-axis
     model = glm::rotate(model, glm::radians(objectRotation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Z-axis
@@ -116,7 +159,38 @@ int main(void)
     ourShader.setFloat("pointLight.sIntensity", Intensity[2]);
     ourShader.setBool("monochrome", monochrome);
 
-    if (drawTriangle) currentModel.Draw(ourShader);
+    if (drawTriangle) {
+      if (drawOutline) {
+        // 1st pass: draw object normally
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        currentModel.Draw(ourShader);
+
+        // 2nd pass: draw outline
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+
+        outliningShader.use();
+        outliningShader.setMat4("model", model);
+        outliningShader.setMat4("view", view);
+        outliningShader.setMat4("projection", projection);
+
+        float baseOutlineSize = 0.08f;
+        float adjustedOutlineSize = baseOutlineSize / size;
+        outliningShader.setFloat("size", adjustedOutlineSize);
+
+        currentModel.Draw(outliningShader);
+
+        // Restore default settings
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        glEnable(GL_DEPTH_TEST);
+      }
+      else {
+        currentModel.Draw(ourShader);
+      }
+    }
 
     //GUI Start
     // Replace this block with the menu bar
@@ -124,7 +198,10 @@ int main(void)
         // "View" menu
         if (ImGui::BeginMenu("View")) {
             ImGui::Checkbox("Draw", &drawTriangle);
+            ImGui::Checkbox("Outline", &drawOutline);
+            ImGui::Checkbox("Enable VSync", &vSyncEnabled);
             ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+            ImGui::Text("FPS: %.1f", fps);
             ImGui::EndMenu();
         }
 

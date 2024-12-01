@@ -29,7 +29,7 @@ void DisplayManager::createDisplay() {
   lastX = m_SCR_WIDTH / 2.0f;
   lastY = m_SCR_HEIGHT / 2.0f;
 
-  m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "3D Game", NULL, NULL);
+  m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "Renderer", NULL, NULL);
   // Full screen
   // m_WINDOW = glfwCreateWindow(m_SCR_WIDTH, m_SCR_HEIGHT, "3D Game", MyMonitor, NULL);
   if (m_WINDOW == NULL) {
@@ -40,9 +40,6 @@ void DisplayManager::createDisplay() {
   glfwMakeContextCurrent(m_WINDOW);
   glfwSetFramebufferSizeCallback(m_WINDOW, framebuffer_size_callback); 
   glfwSetCursorPosCallback(m_WINDOW, mouse_callback);
-
-  // enable vsync
-  glfwSwapInterval(1);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cout << ("Failed to initialize GLAD\n") << '\n';

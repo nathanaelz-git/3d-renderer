@@ -145,5 +145,7 @@
     <None Include="src\Shaders\default.frag" />
     <None Include="src\Shaders\default.vert" />
     <None Include="src\Shaders\lighting.frag" />
+    <None Include="src\Shaders\outlining.vert" />
+    <None Include="src\Shaders\outlining.frag" />
   </ItemGroup>
 </Project>
