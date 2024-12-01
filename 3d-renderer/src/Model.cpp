@@ -174,8 +174,6 @@ void Model::UnLoadTexture(Texture texture) {
          std::cout << "\nremoving: " << texture.name << ", " << texture.textureID << std::endl;
          texture.destroy();
          break;
-
-
       }
    }
 }

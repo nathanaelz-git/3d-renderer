@@ -16,7 +16,7 @@
 #include <chrono>
 #include <iomanip>  
 #include <sstream> 
-
+#include <vector>
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
@@ -42,20 +42,97 @@ glm::vec3 objColor(1.0f, 1.0f, 1.0f);
 //Monochrome toggle
 bool monochrome = false;
 
-// Screenshot variables
+/* SCREEN SHOT */
 bool screenshotRequested = false;
 std::chrono::steady_clock::time_point lastScreenshotTime = std::chrono::steady_clock::now();
 const double screenshotCooldown = 1.0; // Cooldown period in seconds
 
+/* SKYBOX */
+std::vector<std::string> faces1 {
+  "skyboxes/skybox2/right.jpg",
+  "skyboxes/skybox2/left.jpg",
+  "skyboxes/skybox2/top.jpg",
+  "skyboxes/skybox2/bottom.jpg",
+  "skyboxes/skybox2/front.jpg",
+  "skyboxes/skybox2/back.jpg"
+};
+
+std::vector<std::string> faces2 {
+  "skyboxes/skybox1/right.jpg",
+  "skyboxes/skybox1/left.jpg",
+  "skyboxes/skybox1/top.jpg",
+  "skyboxes/skybox1/bottom.jpg",
+  "skyboxes/skybox1/front.jpg",
+  "skyboxes/skybox1/back.jpg"
+};
+
+std::vector<std::string> faces3 {
+  "skyboxes/skybox3/right.png",
+  "skyboxes/skybox3/left.png",
+  "skyboxes/skybox3/top.png",
+  "skyboxes/skybox3/bottom.png",
+  "skyboxes/skybox3/front.png",
+  "skyboxes/skybox3/back.png"
+};
+std::vector<std::string> faces = faces1;
+
+// Controls whether the skybox is enabled
+bool skyboxEnabled = false;
+bool prevSkyboxEnabled = skyboxEnabled;
+
+// Skybox selection index
+int currentSkyboxIndex = 0;
+
+// Flag to indicate that a new skybox needs to be loaded
+bool newSkybox = false;
+
+// Cubemap texture ID
+unsigned int cubemapTexture = 0;
+
+unsigned int loadCubemap(std::vector<std::string> faces);
+std::vector<glm::vec3> skyboxVertices = {
+  { -1.0f, -1.0f,  1.0f },
+  {  1.0f, -1.0f,  1.0f },
+  {  1.0f, -1.0f, -1.0f },
+  { -1.0f, -1.0f, -1.0f },
+  { -1.0f,  1.0f,  1.0f },
+  {  1.0f,  1.0f,  1.0f },
+  {  1.0f,  1.0f, -1.0f },
+  { -1.0f,  1.0f, -1.0f }
+};
+
+std::vector<unsigned int> skyboxIndices = {
+  // Right
+  1, 2, 6,
+  6, 5, 1,
+  // Left
+  0, 4, 7,
+  7, 3, 0,
+  // Top
+  4, 5, 6,
+  6, 7, 4,
+  // Bottom
+  0, 3, 2,
+  2, 1, 0,
+  // Back
+  0, 1, 5,
+  5, 4, 0,
+  // Front
+  3, 7, 6,
+  6, 2, 3
+};
+
 int main(void)
 {
-   DisplayManager::createDisplay();
+  DisplayManager::createDisplay();
 
-   Model currentModel("./models/backpack/backpack.obj");
+  Model currentModel("./models/backpack/backpack.obj");
 
-   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
+  Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
 
-   Shader outliningShader("src/Shaders/outlining.vert", "src/Shaders/outlining.frag");
+  Shader outliningShader("src/Shaders/outlining.vert", "src/Shaders/outlining.frag");
+
+  Shader skyboxShader("src/Shaders/skybox.vert", "src/Shaders/skybox.frag");
 
   FileHandler fileHandler;
 
@@ -107,9 +184,35 @@ int main(void)
 
   bool antiAliasEnabled = true;
 
+  
+  VertexArray skyboxVAO;
+  skyboxVAO.bind();
+
+  VertexBuffer skyboxVBO(skyboxVertices);
+
+  skyboxVAO.linkAttrib(skyboxVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+  ElementBuffer skyboxEBO(skyboxIndices);
+
+  skyboxVAO.unbind();
+  skyboxVBO.unbind();
+  // skyboxEBO.unbind();
+
+
+
+  cubemapTexture = loadCubemap(faces);
+
   //main while loop
   while (!glfwWindowShouldClose(DisplayManager::getWindow()))
   {
+    if (newSkybox && skyboxEnabled) {
+      // Delete the previous cubemap texture
+      glDeleteTextures(1, &cubemapTexture);
+
+      // Load the new cubemap texture
+      cubemapTexture = loadCubemap(faces);
+
+      newSkybox = false;
+    }
     ourShader.use();
     // enable vsync
     if (vSyncEnabled)
@@ -233,14 +336,57 @@ int main(void)
       }
     }
 
+    // Disable befpre drawing the skybox
+    glDisable(GL_CULL_FACE);
+    if (skyboxEnabled) {
+      // Skybox display
+      glDepthFunc(GL_LEQUAL);
+      skyboxShader.use();
+
+      glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+      skyboxShader.setMat4("view", skyboxView);
+      skyboxShader.setMat4("projection", projection);
+
+      skyboxVAO.bind();
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+      glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skyboxIndices.size()), GL_UNSIGNED_INT, 0);
+      skyboxVAO.unbind();
+      glDepthFunc(GL_LESS);
+    }
+    glEnable(GL_CULL_FACE);
+
+    ourShader.use();
     // Begin Main Menu Bar
     // Replace this block with the menu bar
     if (ImGui::BeginMainMenuBar()) { // Creates the top bar
         // "View" menu
         if (ImGui::BeginMenu("View")) {
             ImGui::Checkbox("Draw", &drawTriangle);
-            ImGui::Checkbox("Enable VSync", &vSyncEnabled);
-            ImGui::Checkbox("Enable Anti Alasing", &antiAliasEnabled);
+            ImGui::Checkbox("VSync", &vSyncEnabled);
+            ImGui::Checkbox("Anti Aliasing", &antiAliasEnabled);
+            // Checkbox to enable/disable the skybox
+            ImGui::Checkbox("Enable Skybox", &skyboxEnabled);
+            // If the skybox is enabled, show the combo box
+            if (skyboxEnabled) {
+              const char *skyboxNames[] = { "Skybox 1", "Skybox 2", "Skybox 3" };
+              // Create a combo box for skybox selection
+              if (ImGui::Combo("Select Skybox", &currentSkyboxIndex, skyboxNames, IM_ARRAYSIZE(skyboxNames))) {
+                // Update the 'faces' vector based on the selection
+                switch (currentSkyboxIndex) {
+                  case 0:
+                    faces = faces1;
+                    break;
+                  case 1:
+                    faces = faces2;
+                    break;
+                  case 2:
+                    faces = faces3;
+                    break;
+                }
+                newSkybox = true; // Set the flag to load the new skybox
+              }
+            }
             ImGui::SliderFloat("Resize", &size, 0.1f, 5.0f);
             ImGui::Text("FPS: %.1f", fps);
             ImGui::EndMenu();
@@ -346,8 +492,6 @@ int main(void)
      
               std::string fileName;
               std::string newObjPath = fileHandler.GetTextureFile(fileName);
-
-            
 
               if (!newObjPath.empty()) {
 
@@ -567,6 +711,44 @@ void DisplayManager::processInput()
     {
         firstMouse = true;
     }
+}
+
+unsigned int loadCubemap(std::vector<std::string> faces) 
+{
+  stbi_set_flip_vertically_on_load(false); // Disable vertical flipping
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  int width, height, nrChannels;
+  for (unsigned int i = 0; i < faces.size(); i++)
+  {
+      unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+      if (data)
+      {
+        unsigned int format = GL_RGB;
+        if (nrChannels == 1)
+          format = GL_RED;
+        else if (nrChannels == 3)
+          format = GL_RGB;
+        else if (nrChannels == 4)
+          format = GL_RGBA;
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        stbi_image_free(data);
+      }
+      else
+      {
+        std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+        stbi_image_free(data);
+      }
+  }
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  return textureID;
 }
 
 

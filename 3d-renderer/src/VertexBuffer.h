@@ -28,6 +28,7 @@ struct Vertex {
 class VertexBuffer {
 public:
   unsigned int ID;
+  VertexBuffer(const std::vector<glm::vec3>& positions);
   VertexBuffer(const std::vector<Vertex>& vertices);
 
   void bind();

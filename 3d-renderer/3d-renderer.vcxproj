@@ -67,6 +67,8 @@
     <None Include="src\Shaders\lighting.frag" />
     <None Include="src\Shaders\outlining.frag" />
     <None Include="src\Shaders\outlining.vert" />
+    <None Include="src\Shaders\skybox.frag" />
+    <None Include="src\Shaders\skybox.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
