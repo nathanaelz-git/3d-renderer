@@ -198,9 +198,8 @@ int main(void)
         // "View" menu
         if (ImGui::BeginMenu("View")) {
             ImGui::Checkbox("Draw", &drawTriangle);
-            ImGui::Checkbox("Outline", &drawOutline);
             ImGui::Checkbox("Enable VSync", &vSyncEnabled);
-            ImGui::SliderFloat("Resize", &size, 0.5f, 2.0f);
+            ImGui::SliderFloat("Resize", &size, 0.1f, 5.0f);
             ImGui::Text("FPS: %.1f", fps);
             ImGui::EndMenu();
         }
@@ -241,6 +240,7 @@ int main(void)
         if (ImGui::BeginMenu("Filters")) {
            
            ImGui::Checkbox("Monochrome Toggle", &monochrome);
+           ImGui::Checkbox("Outline", &drawOutline);
 
            ImGui::EndMenu();
         }
@@ -291,6 +291,9 @@ int main(void)
                shininess = 32.0f;
 
                monochrome = false;
+               drawOutline = false;
+               vSyncEnabled = true;
+
             }
          
             ImGui::EndMenu();
