@@ -387,7 +387,7 @@ int main(void)
                 newSkybox = true; // Set the flag to load the new skybox
               }
             }
-            ImGui::SliderFloat("Resize", &size, 0.1f, 5.0f);
+            ImGui::SliderFloat("Resize", &size, 0.001f, 5.0f);
             ImGui::Text("FPS: %.1f", fps);
             ImGui::EndMenu();
         }
