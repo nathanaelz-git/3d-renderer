@@ -35,6 +35,8 @@ uniform vec3 objColor; // Object color passed from the main program
 uniform bool monochrome;
 uniform bool auxLightOn;
 
+uniform bool blinnPhong;
+
 void main()
 {
     vec3 normalVec = normalize(Normal);
@@ -52,24 +54,41 @@ void main()
     // Specular shading
     vec3 viewVec = normalize(viewPos - FragPos);
 
+    float spec = 0.0;
+    if (blinnPhong) 
+    {
+      vec3 halfwayVec = normalize(lightVec + viewVec);
+      spec = pow(max(dot(normalVec, halfwayVec), 0.0), material.shininess * 3.5);
+    } 
+    else
+    {
+      vec3 reflectVec = reflect(-lightVec, normalVec);
+      spec = pow(max(dot(viewVec, reflectVec), 0.0), material.shininess);
+    }
 
-    vec3 reflectVec = reflect(-lightVec, normalVec);
-    
-    float spec = pow(max(dot(viewVec, reflectVec), 0.0), material.shininess);
-    
     vec3 specular =  pointLight.specular * pointLight.sIntensity * spec * vec3(texture(material.specular, TexCoords));
 
-    if (auxLightOn){
-
+    if (auxLightOn) 
+    {
         vec3 lightVec2 = normalize(pointLight2.position - FragPos);
         float diff2 = max(dot(normalVec, lightVec2), 0.0);
-        vec3 reflectVec2 = reflect(-lightVec2, normalVec);
-        float spec2 = pow(max(dot(viewVec, reflectVec2), 0.0), material.shininess);
+
+        float spec2 = 0.0;
+
+        if (blinnPhong) 
+        {
+          vec3 halfwayVec2 = normalize(lightVec2 + viewVec);
+          spec2 = pow(max(dot(normalVec, halfwayVec2), 0.0), material.shininess);
+        } 
+        else
+        {
+          vec3 reflectVec2 = reflect(-lightVec2, normalVec);
+          spec2 = pow(max(dot(viewVec, reflectVec2), 0.0), material.shininess);
+        }
 
         ambient  += pointLight2.ambient * pointLight2.aIntensity * vec3(texture(material.diffuse, TexCoords));
         diffuse  += pointLight2.diffuse * pointLight2.dIntensity * diff2 * vec3(texture(material.diffuse, TexCoords));
         specular += pointLight2.specular * pointLight2.sIntensity * spec2 * vec3(texture(material.specular, TexCoords));
-
     }
     // Combine results and apply object color
     vec3 result = (ambient + diffuse + specular) * objColor;

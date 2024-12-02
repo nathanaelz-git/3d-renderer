@@ -36,6 +36,9 @@ double lastX = 0.0, lastY = 0.0;            // Last mouse cursor position
 glm::vec3 lightPos(1.2f, 3.25f, 2.0f);
 glm::vec3 lightPos2(1.2f, 3.25f, 2.0f);
 
+// Blinn-Phong shading
+bool blinnPhong = true;
+
 //Object color
 glm::vec3 objColor(1.0f, 1.0f, 1.0f);
 
@@ -150,7 +153,7 @@ int main(void)
   float Intensity[3] = { 1.0f,  1.0f,  1.0f };
 
   //lighting variables for aux light
-  bool auxLightEnabled = true;
+  bool auxLightEnabled = false;
 
   float ambiant2[3] = { 0.15f, 0.15f, 0.15f };
   float diffuse2[3] = { 1.0f,  1.0f,  1.0f };
@@ -298,6 +301,7 @@ int main(void)
     
     ourShader.setBool("monochrome", monochrome);
     ourShader.setBool("auxLightOn", auxLightEnabled);
+    ourShader.setInt("blinnPhong", blinnPhong);
 
     if (drawTriangle) {
       if (drawOutline) {
@@ -405,6 +409,7 @@ int main(void)
         if (ImGui::BeginMenu("Lighting")) {
            if (ImGui::CollapsingHeader("Base Light"))
            {
+              ImGui::Checkbox("Blinn-Phong", &blinnPhong);
               ImGui::Text("Position");
               ImGui::SliderFloat("X", &lightPos.x, -10.0f, 10.0f);
               ImGui::SliderFloat("Y", &lightPos.y, -10.0f, 10.0f);
