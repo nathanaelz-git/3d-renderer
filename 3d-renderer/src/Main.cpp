@@ -513,7 +513,14 @@ int main(void)
             if (ImGui::Button("Import Object")) {
                 std::string newObjPath = fileHandler.GetObjectFile();
                 if (!newObjPath.empty()) {
-                    currentModel = Model(newObjPath);
+
+                   std::vector<Texture> tempTextures = currentModel.textures;
+                   std::vector<Texture> tempTexturesLoaded = currentModel.textures_loaded;
+
+                   currentModel = Model(newObjPath);
+
+                   currentModel.textures = tempTextures;
+                   currentModel.textures_loaded = tempTexturesLoaded;
                 }
             }
             if (ImGui::MenuItem("Reset Scene")) {
