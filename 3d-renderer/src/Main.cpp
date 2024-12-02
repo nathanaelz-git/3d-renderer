@@ -45,7 +45,7 @@ bool monochrome = false;
 /* SCREEN SHOT */
 bool screenshotRequested = false;
 std::chrono::steady_clock::time_point lastScreenshotTime = std::chrono::steady_clock::now();
-const double screenshotCooldown = 1.0; // Cooldown period in seconds
+const double screenshotCooldown = 1.0; 
 
 /* SKYBOX */
 std::vector<std::string> faces1 {
@@ -129,9 +129,7 @@ int main(void)
   Model currentModel("./models/backpack/backpack.obj");
 
   Shader ourShader("src/Shaders/default.vert", "src/Shaders/lighting.frag");
-
   Shader outliningShader("src/Shaders/outlining.vert", "src/Shaders/outlining.frag");
-
   Shader skyboxShader("src/Shaders/skybox.vert", "src/Shaders/skybox.frag");
 
   FileHandler fileHandler;
@@ -139,29 +137,29 @@ int main(void)
   bool drawTriangle = true;
   bool drawOutline = false;
 
-   float size = 1.0f;
+  float size = 1.0f;
 
-   //lighting variables for base light
-   float lightConstant = 1.0f;
-   float lightLinear = 0.09f;
-   float lightQuadratic = 0.032f;
+  //lighting variables for base light
+  float lightConstant = 1.0f;
+  float lightLinear = 0.09f;
+  float lightQuadratic = 0.032f;
 
-   float ambiant[3] = {0.15f, 0.15f, 0.15f};
-   float diffuse[3] = {1.0f,  1.0f,  1.0f};
-   float specular[3] = {1.0f,  1.0f,  1.0f};
-   float Intensity[3] = { 1.0f,  1.0f,  1.0f };
+  float ambiant[3] = {0.15f, 0.15f, 0.15f};
+  float diffuse[3] = {1.0f,  1.0f,  1.0f};
+  float specular[3] = {1.0f,  1.0f,  1.0f};
+  float Intensity[3] = { 1.0f,  1.0f,  1.0f };
 
-   //lighting variables for aux light
-   bool auxLightEnabled = true;
+  //lighting variables for aux light
+  bool auxLightEnabled = true;
 
-   float ambiant2[3] = { 0.15f, 0.15f, 0.15f };
-   float diffuse2[3] = { 1.0f,  1.0f,  1.0f };
-   float specular2[3] = { 1.0f,  1.0f,  1.0f };
-   float Intensity2[3] = { 1.0f,  1.0f,  1.0f };
+  float ambiant2[3] = { 0.15f, 0.15f, 0.15f };
+  float diffuse2[3] = { 1.0f,  1.0f,  1.0f };
+  float specular2[3] = { 1.0f,  1.0f,  1.0f };
+  float Intensity2[3] = { 1.0f,  1.0f,  1.0f };
 
-   float shininess = 32.0f;
+  float shininess = 32.0f;
 
-   ourShader.setFloat("size", size);
+  ourShader.setFloat("size", size);
 
   // Enable the depth buffer
   glEnable(GL_DEPTH_TEST);  
@@ -196,8 +194,6 @@ int main(void)
   skyboxVAO.unbind();
   skyboxVBO.unbind();
   // skyboxEBO.unbind();
-
-
 
   cubemapTexture = loadCubemap(faces);
 
